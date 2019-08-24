@@ -1,6 +1,6 @@
 -----Effects-----
 
-PWL0_Ripple_Line			PWL0_Ripple_Line
+1_6_temp_need_change			1_6_temp_need_change
 
 
 
