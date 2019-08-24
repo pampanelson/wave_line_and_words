@@ -9,31 +9,25 @@
 //#define FFPARAM_SwitchTex   (0)
 //#define FFPARAM_Float1      (1)
 
-#define FFPARAM_bUseLine      (0)
-#define FFPARAM_bUseWord      (1)
 
-#define FFPARAM_bLineRipple       (2)
-#define FFPARAM_bLineTracking     (3)
+#define FFPARAM_bLineRipple       (0)
+#define FFPARAM_bLineTracking     (1)
 
-#define FFPARAM_bWordRotate       (4)
-#define FFPARAM_bWordTracking     (5)
+#define FFPARAM_lineNum       (2)
+#define FFPARAM_lineWidth     (3)
+#define FFPARAM_lineOffset        (4)
+#define FFPARAM_lineMiRippleSize      (5)
+#define FFPARAM_lineMiRippleSpeed     (6)
+#define FFPARAM_lineMaRippleSize      (7)
+#define FFPARAM_lineMaRippleSpeed     (8)
 
-#define FFPARAM_lineNum       (6)
-#define FFPARAM_lineWidth     (7)
-#define FFPARAM_lineOffset        (8)
-#define FFPARAM_lineMiRippleSize      (9)
-#define FFPARAM_lineMiRippleSpeed     (10)
-#define FFPARAM_lineMaRippleSize      (11)
-#define FFPARAM_lineMaRippleSpeed     (12)
-
-#define FFPARAM_wordLineNum       (13)
-#define FFPARAM_wordLineSpacingRatio      (14)
-#define FFPARAM_wordWordSpacingRatio      (15)
-#define FFPARAM_wordOffset        (16)
+#define FFPARAM_trk1Angle     (9)
+#define FFPARAM_trk1Power     (10)
 
 
-#define FFPARAM_trk1Angle     (17)
-#define FFPARAM_trk1Power     (18)
+
+
+
 
 
 
@@ -43,14 +37,14 @@
 
 static CFFGLPluginInfo PluginInfo ( 
 	AddSubtract::CreateInstance,		// Create method
-	"Pwlw20190824",								// Plugin unique ID
-	"P Wave Line Word",					// Plugin name
+	"PWL201908",								// Plugin unique ID
+	"P Wave Line",					// Plugin name
 	1,						   			// API major version number 													
 	500,								// API minor version number
 	1,									// Plugin major version number
 	000,								// Plugin minor version number
 	FF_EFFECT,							// Plugin type
-	"P Wave Line Word",			// Plugin description
+	"P Wave Line",			// Plugin description
 	"by Pampa -- lohosoft.com"				// About
 );
 
@@ -76,14 +70,10 @@ AddSubtract::AddSubtract()
     
     // default value;
     
-    bUseLine = true;
-    bUseWord = !bUseLine;
-    
     bLineRipple = true;
     bLineTracking = false;
     
-    bWordRotate = true;
-    bWordTracking = false;
+
     
     lineNum = 20;
     lineWidth = 0.02;
@@ -93,23 +83,10 @@ AddSubtract::AddSubtract()
     lineMaRippleSize = 0.3;
     lineMaRippleSpeed = 1.0;
     
-    wordLineNum = 20.;
-    wordLineSpacingRatio = 0.1;
-    wordWordSpacingRatio = 0.1;
-    wordOffset = 2.;
-    
-    
 
-    
-    
-    SetParamInfo(FFPARAM_bUseLine,"line",FF_TYPE_BOOLEAN,bUseLine);
-    SetParamInfo(FFPARAM_bUseWord,"word",FF_TYPE_BOOLEAN,bUseWord);
-    
+
     SetParamInfo(FFPARAM_bLineRipple ,"line ripple",FF_TYPE_BOOLEAN,bLineRipple);
     SetParamInfo(FFPARAM_bLineTracking,"line tracking",FF_TYPE_BOOLEAN,bLineTracking);
-    
-    SetParamInfo(FFPARAM_bWordRotate ,"word rotate",FF_TYPE_BOOLEAN,bWordRotate);
-    SetParamInfo(FFPARAM_bWordTracking,"word tracking",FF_TYPE_BOOLEAN,bWordTracking);
     
     SetParamInfo(FFPARAM_lineNum ,"line number",FF_TYPE_STANDARD,lineNum);
     SetParamInfo(FFPARAM_lineWidth,"line width",FF_TYPE_STANDARD,lineWidth);
@@ -120,11 +97,7 @@ AddSubtract::AddSubtract()
     SetParamInfo(FFPARAM_lineMaRippleSize,"line ma size",FF_TYPE_STANDARD,lineMaRippleSize);
     SetParamInfo(FFPARAM_lineMaRippleSpeed,"line ma speed",FF_TYPE_STANDARD,lineMaRippleSpeed);
     
-    SetParamInfo(FFPARAM_wordLineNum ,"word line number",FF_TYPE_STANDARD,wordLineNum);
-    SetParamInfo(FFPARAM_wordLineSpacingRatio,"word line spacing",FF_TYPE_STANDARD,wordLineSpacingRatio);
-    SetParamInfo(FFPARAM_wordWordSpacingRatio,"word word spacing",FF_TYPE_STANDARD,wordWordSpacingRatio);
-    SetParamInfo(FFPARAM_wordOffset,"word offset",FF_TYPE_STANDARD,wordOffset);
-    
+
     
     SetParamInfo(FFPARAM_trk1Angle,"trk 1 angle",FF_TYPE_STANDARD,trk1Angle);
     SetParamInfo(FFPARAM_trk1Power,"trk 1 power",FF_TYPE_STANDARD,trk1Power);
@@ -157,18 +130,13 @@ FFResult AddSubtract::InitGL(const FFGLViewportStruct *vp)
 //    m_SwitchTexLocation = m_shader.FindUniform("switchTex");
 //    m_Float1Location = m_shader.FindUniform("float1");
     
-    bUseLineLoc = m_shader.FindUniform("bUseLine");
-    bUseWordLoc = m_shader.FindUniform("bUseWord");
     
-    bUseLineLoc = m_shader.FindUniform("bUseLine");
-    bUseWordLoc = m_shader.FindUniform("bUseWord");
     
     bLineRippleLoc = m_shader.FindUniform("bLineRipple");
     bLineTrackingLoc = m_shader.FindUniform("bLineTracking");
 
     
-    bWordRotateLoc = m_shader.FindUniform("bWordRotate");
-    bWordTrackingLoc = m_shader.FindUniform("bWordTracking");
+
 
     
     lineNumLoc = m_shader.FindUniform("lineNum");
@@ -179,10 +147,6 @@ FFResult AddSubtract::InitGL(const FFGLViewportStruct *vp)
     lineMaRippleSizeLoc = m_shader.FindUniform("lineMaRippleSize");
     lineMaRippleSpeedLoc = m_shader.FindUniform("lineMaRippleSpeed");
     
-    wordLineNumLoc = m_shader.FindUniform("wordLineNum");
-    wordLineSpacingRatioLoc = m_shader.FindUniform("wordLineSpacingRatio");
-    wordWordspacingRatioLoc = m_shader.FindUniform("wordWordSpacingRatio");
-    wordOffsetLoc = m_shader.FindUniform("wordOffset");
     
     
     trk1AngleLoc = m_shader.FindUniform("trk1Angle");
@@ -225,12 +189,6 @@ FFResult AddSubtract::ProcessOpenGL(ProcessOpenGLStruct *pGL)
 
     ticks = getTicks();
     
-    // pick one effect at a time
-    bUseWord = !bUseLine;
-    
-    
-    
-    
 	//activate our shader
 	m_shader.BindShader();
 
@@ -265,37 +223,13 @@ FFResult AddSubtract::ProcessOpenGL(ProcessOpenGLStruct *pGL)
     glUniform1f(lineMaRippleSizeLoc,lineMaRippleSize);
     glUniform1f(lineMaRippleSpeedLoc,lineMaRippleSpeed);
     
-    glUniform1f(wordLineNumLoc,wordLineNum);
-    glUniform1f(wordLineSpacingRatioLoc,wordLineSpacingRatio);
-    glUniform1f(wordWordspacingRatioLoc,wordWordSpacingRatio);
-    glUniform1f(wordOffsetLoc,wordOffset);
-    
     
     glUniform1f(trk1AngleLoc,trk1Angle);
     glUniform1f(trk1PowerLoc,trk1Power);
 
     
     
-    if(bUseLine){
-        glUniform1f(bUseLineLoc,1.0);
-        
-    }else{
-        glUniform1f(bUseLineLoc,0.0);
-        
-    }
-    
-    
-    
-    
-    if(bUseWord){
-        glUniform1f(bUseWordLoc,1.0);
-        
-    }else{
-        glUniform1f(bUseWordLoc,0.0);
-        
-    }
-    
-    
+
     
 
     if(bLineRipple){
@@ -317,26 +251,7 @@ FFResult AddSubtract::ProcessOpenGL(ProcessOpenGLStruct *pGL)
         
     }
     
-    
-    
 
-    if(bWordRotate){
-        glUniform1f(bWordRotateLoc,1.0);
-        
-    }else{
-        glUniform1f(bWordRotateLoc,0.0);
-        
-    }
-    
-    
-    if(bWordTracking){
-        glUniform1f(bWordTrackingLoc,1.0);
-        
-    }else{
-        glUniform1f(bWordTrackingLoc,0.0);
-        
-    }
-    
     
     
     
@@ -389,14 +304,7 @@ float AddSubtract::GetFloatParameter(unsigned int dwIndex)
 //        case FFPARAM_Float1:
 //            retValue = m_Float1;
 //            return retValue;
-        case FFPARAM_bUseLine:
-            retValue = bUseLine;
-            return retValue;
-        case FFPARAM_bUseWord:
-            bUseWord = !bUseLine;
-            retValue = bUseWord;
-            return retValue;
-            
+
         case FFPARAM_bLineRipple :
             retValue = bLineRipple;
             return retValue;
@@ -404,13 +312,7 @@ float AddSubtract::GetFloatParameter(unsigned int dwIndex)
             retValue = bLineTracking;
             return retValue;
             
-        case FFPARAM_bWordRotate :
-            retValue = bWordRotate;
-            return retValue;
-        case FFPARAM_bWordTracking:
-            retValue = bWordTracking;
-            return retValue;
-            
+
         case FFPARAM_lineNum :
             retValue = lineNum;
             return retValue;
@@ -432,20 +334,7 @@ float AddSubtract::GetFloatParameter(unsigned int dwIndex)
         case FFPARAM_lineMaRippleSpeed:
             retValue = lineMaRippleSpeed;
             return retValue;
-            
-        case FFPARAM_wordLineNum :
-            retValue = wordLineNum;
-            return retValue;
-        case FFPARAM_wordLineSpacingRatio:
-            retValue = wordLineSpacingRatio;
-            return retValue;
-        case FFPARAM_wordWordSpacingRatio:
-            retValue = wordWordSpacingRatio;
-            return retValue;
-        case FFPARAM_wordOffset :
-            retValue = wordOffset;
-            return retValue;
-            
+
             
         case FFPARAM_trk1Angle:
             retValue = trk1Angle;
@@ -470,13 +359,6 @@ FFResult AddSubtract::SetFloatParameter(unsigned int dwIndex, float value)
 //        break;
             
             
-    case FFPARAM_bUseLine:
-        bUseLine = value > 0.5;
-        break;
-    case FFPARAM_bUseWord:
-        bUseWord = value > 0.5;
-        break;
-        
     case FFPARAM_bLineRipple:
         bLineRipple = value > 0.5;
         break;
@@ -484,14 +366,7 @@ FFResult AddSubtract::SetFloatParameter(unsigned int dwIndex, float value)
         bLineTracking = value > 0.5;
         break;
         
-    case FFPARAM_bWordRotate:
-        bWordRotate = value > 0.5;
-        break;
-    case FFPARAM_bWordTracking:
-        bWordTracking = value > 0.5;
-        break;
-        
-        
+
 
     case FFPARAM_lineNum:
         lineNum = value;
@@ -514,20 +389,7 @@ FFResult AddSubtract::SetFloatParameter(unsigned int dwIndex, float value)
     case FFPARAM_lineMaRippleSpeed:
         lineMaRippleSpeed = value;
         break;
-        
-    case FFPARAM_wordLineNum :
-        wordLineNum = value;
-        break;
-    case FFPARAM_wordLineSpacingRatio:
-        wordLineSpacingRatio = value;
-        break;
-    case FFPARAM_wordWordSpacingRatio:
-        wordWordSpacingRatio = value;
-        break;
-    case FFPARAM_wordOffset:
-        wordOffset = value;
-        break;
-        
+
         
     case FFPARAM_trk1Angle:
         trk1Angle = value;
