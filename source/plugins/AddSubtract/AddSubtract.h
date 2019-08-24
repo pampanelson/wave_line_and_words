@@ -37,8 +37,61 @@ protected:
 	// Parameters
     
     int m_initResources;
-    bool  m_SwitchTex;
-    float m_Float1;
+//    bool  m_SwitchTex;
+//    float m_Float1;
+    
+    bool bUseLine;
+    bool bUseWord;
+    
+    bool bLineRipple;
+    bool bLineTracking;
+    
+    bool bWordRotate;
+    bool bWordTracking;
+    
+    float lineNum;
+    float lineWidth;
+    float lineOffset;
+    float lineMiRippleSize;
+    float lineMiRippleSpeed;
+    float lineMaRippleSize;
+    float lineMaRippleSpeed;
+    
+    float wordLineNum;
+    float wordLineSpacingRatio;
+    float wordWordSpacingRatio;
+    float wordOffset;
+    
+    
+    float trk1Angle;
+    float trk1Power;
+    
+    GLint bUseLineLoc;
+    GLint bUseWordLoc;
+    
+    GLint bLineRippleLoc;
+    GLint bLineTrackingLoc;
+    
+    GLint bWordRotateLoc;
+    GLint bWordTrackingLoc;
+    
+    GLint lineNumLoc;
+    GLint lineWidthLoc;
+    GLint lineOffsetLoc;
+    GLint lineMiRippleSizeLoc;
+    GLint lineMiRippleSpeedLoc;
+    GLint lineMaRippleSizeLoc;
+    GLint lineMaRippleSpeedLoc;
+    
+    GLint wordLineNumLoc;
+    GLint wordLineSpacingRatioLoc;
+    GLint wordWordspacingRatioLoc;
+    GLint wordOffsetLoc;
+    
+    
+    GLint trk1AngleLoc;
+    GLint trk1PowerLoc;
+    
     
     FFGLShader m_shader;
     GLint m_inputTextureLocation;
