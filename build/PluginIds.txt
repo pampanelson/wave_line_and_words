@@ -1,6 +1,6 @@
 -----Effects-----
 
-AddSubtract				RF01
+PWL0_Ripple_Line			PWL0_Ripple_Line
 
 
 
