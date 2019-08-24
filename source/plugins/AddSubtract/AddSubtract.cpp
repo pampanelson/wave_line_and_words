@@ -6,8 +6,13 @@
 #include "Frag.h"
 #include "../../lib/ffgl/utilities/utilities.h"
 
-#define FFPARAM_SwitchTex   (0)
-#define FFPARAM_Float1      (1)
+//#define FFPARAM_SwitchTex   (0)
+//#define FFPARAM_Float1      (1)
+#define FFPARAM_lineNum     (0)
+#define FFPARAM_rotateSpeed (1)
+#define FFPARAM_lsration    (2)
+#define FFPARAM_wsration    (3)
+#define FFPARAM_offsetY     (4)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Plugin information
@@ -15,14 +20,14 @@
 
 static CFFGLPluginInfo PluginInfo ( 
 	AddSubtract::CreateInstance,		// Create method
-	"1_6_temp_need_change",								// Plugin unique ID
-	"Ripple1_6_temp_need_change",					// Plugin name
+	"PWL1_word_round",								// Plugin unique ID
+	"P Word Round",					// Plugin name
 	1,						   			// API major version number 													
 	500,								// API minor version number
 	1,									// Plugin major version number
 	000,								// Plugin minor version number
 	FF_EFFECT,							// Plugin type
-	"1_6_temp_need_change",			// Plugin description
+	"P Word Round",			// Plugin description
 	"by Pampa -- lohosoft.com"				// About
 );
 
@@ -37,13 +42,27 @@ AddSubtract::AddSubtract()
 	SetMaxInputs(1);
 
 	// Parameters
-    // Parameters
-    SetParamInfo(FFPARAM_SwitchTex, "Switch Tex", FF_TYPE_BOOLEAN, false);
     
-    m_SwitchTex = false;
+//    SetParamInfo(FFPARAM_SwitchTex, "Switch Tex", FF_TYPE_BOOLEAN, false);
+//
+//    m_SwitchTex = false;
+//
+//    SetParamInfo(FFPARAM_Float1,"Float 1",FF_TYPE_STANDARD,0.0f);
+//    m_Float1 = 0.0f;
     
-    SetParamInfo(FFPARAM_Float1,"Float 1",FF_TYPE_STANDARD,0.0f);
-    m_Float1 = 0.0f;
+    lineNum =  10.0f;// 0.0 ~ 200;
+    rotateSpeed = 2.0f; // 1. ~ 10.
+    lsration = 0.1f; // 0.0 ~ 1.0
+    wsration = 0.1f; // 0.0 ~ 1.0
+    offsetY = 2.0f; // 0.0 ~ 50;
+
+    
+    SetParamInfo(FFPARAM_lineNum,"Line Number",FF_TYPE_STANDARD,lineNum/200.0f);
+    SetParamInfo(FFPARAM_rotateSpeed,"Rotate Speed",FF_TYPE_STANDARD,rotateSpeed/10.0f);
+    SetParamInfo(FFPARAM_lsration,"Line Spacing",FF_TYPE_STANDARD,lsration);
+    SetParamInfo(FFPARAM_wsration,"Word Spacing",FF_TYPE_STANDARD,wsration);
+    SetParamInfo(FFPARAM_offsetY,"Offset",FF_TYPE_STANDARD,offsetY/50.0f);
+
 
 }
 
@@ -73,6 +92,17 @@ FFResult AddSubtract::InitGL(const FFGLViewportStruct *vp)
     m_HeightLocation = m_shader.FindUniform("height");
     m_SwitchTexLocation = m_shader.FindUniform("switchTex");
     m_Float1Location = m_shader.FindUniform("float1");
+    
+    
+    
+    lineNumLoc = m_shader.FindUniform("lineNum");
+    rotateSpeedLoc = m_shader.FindUniform("rotateSpeed");
+    lsrationLoc = m_shader.FindUniform("lsration");
+    wsrationLoc = m_shader.FindUniform("wsration");
+    offsetYLoc = m_shader.FindUniform("offsetY");
+    
+    
+    
     
 	//the 0 means that the 'inputTexture' in
 	//the shader will use the texture bound to GL texture unit 0
@@ -141,6 +171,14 @@ FFResult AddSubtract::ProcessOpenGL(ProcessOpenGLStruct *pGL)
     }
     
     
+    glUniform1f(lineNumLoc,lineNum);
+    glUniform1f(rotateSpeedLoc,rotateSpeed);
+    glUniform1f(lsrationLoc,lsration);
+    glUniform1f(wsrationLoc,wsration);
+    glUniform1f(offsetYLoc,offsetY);
+
+    
+    
     
     
 	//activate texture unit 1 and bind the input texture
@@ -186,12 +224,28 @@ float AddSubtract::GetFloatParameter(unsigned int dwIndex)
 
     switch (dwIndex)
     {
-        case FFPARAM_SwitchTex:
-            retValue = m_SwitchTex;
+//        case FFPARAM_SwitchTex:
+//            retValue = m_SwitchTex;
+//            return retValue;
+//        case FFPARAM_Float1:
+//            retValue = m_Float1;
+//            return retValue;
+        case FFPARAM_lineNum:
+            retValue = lineNum / 200.0f;
             return retValue;
-        case FFPARAM_Float1:
-            retValue = m_Float1;
+        case FFPARAM_rotateSpeed:
+            retValue = rotateSpeed / 10.0f;
             return retValue;
+        case FFPARAM_lsration:
+            retValue = lsration;
+            return retValue;
+        case FFPARAM_wsration:
+            retValue = wsration;
+            return retValue;
+        case FFPARAM_offsetY:
+            retValue = offsetY/50.0f;
+            return retValue;
+        
         default:
             return retValue;
     }
@@ -201,11 +255,26 @@ FFResult AddSubtract::SetFloatParameter(unsigned int dwIndex, float value)
 {
 	switch (dwIndex)
 	{
-    case FFPARAM_Float1:
-        m_Float1 = value;
+//    case FFPARAM_Float1:
+//        m_Float1 = value;
+//        break;
+//    case FFPARAM_SwitchTex:
+//        m_SwitchTex = value > 0.5;
+//        break;
+    case FFPARAM_lineNum:
+        lineNum = value * 200.0f;
         break;
-    case FFPARAM_SwitchTex:
-        m_SwitchTex = value > 0.5;
+    case FFPARAM_rotateSpeed:
+        rotateSpeed = value * 10.0f;
+        break;
+    case FFPARAM_lsration:
+        lsration = value;
+        break;
+    case FFPARAM_wsration:
+        wsration = value;
+        break;
+    case FFPARAM_offsetY:
+        offsetY = value * 50.0f;
         break;
 	default:
 		return FF_FAIL;

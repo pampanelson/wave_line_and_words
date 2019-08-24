@@ -40,6 +40,14 @@ protected:
     bool  m_SwitchTex;
     float m_Float1;
     
+    
+    float lineNum; // 0.0 ~ 200;
+    float rotateSpeed; // 1. ~ 10.
+    float lsration; // 0.0 ~ 1.0
+    float wsration; // 0.0 ~ 1.0
+    float offsetY; // 0.0 ~ 50;
+
+    
     FFGLShader m_shader;
     GLint m_inputTextureLocation;
     GLint m_TicksLocation;
@@ -50,6 +58,15 @@ protected:
     
     GLint m_SwitchTexLocation;
     GLint m_Float1Location;
+    
+    
+    GLint lineNumLoc; // 0.0 ~ 200;
+    GLint rotateSpeedLoc; // 1. ~ 10.
+    GLint lsrationLoc; // 0.0 ~ 1.0
+    GLint wsrationLoc; // 0.0 ~ 1.0
+    GLint offsetYLoc; // 0.0 ~ 50;
+
+    
     
     double ticks;
 
