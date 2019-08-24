@@ -37,10 +37,30 @@ protected:
 	// Parameters
     
     int m_initResources;
+    
+    // =========== not use
     bool  m_SwitchTex;
     float m_Float1;
+
+    
+    // parameters ---------------------------------------
+    float lineNum;// = 40.0;
+    float lineWidth;// = 0.2;
+    float offsetY;// = 0.1;
+    float lineSaturation;// = 4.0;
+    bool  bRipple;// = true;
+    // ---------------------------------------------------
+    
+
+    GLint lineNumLoc;
+    GLint lineWidthLoc;
+    GLint offsetYLoc;
+    GLint lineSaturationLoc;
+    GLint bRippleLoc;
     
     FFGLShader m_shader;
+    
+    // default parameters =====================
     GLint m_inputTextureLocation;
     GLint m_TicksLocation;
     
@@ -50,6 +70,7 @@ protected:
     
     GLint m_SwitchTexLocation;
     GLint m_Float1Location;
+    
     
     double ticks;
 

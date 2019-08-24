@@ -8,6 +8,11 @@
 
 #define FFPARAM_SwitchTex   (0)
 #define FFPARAM_Float1      (1)
+#define FFPARAM_Line_Number (2)
+#define FFPARAM_Line_Width  (3)
+#define FFPARAM_OffsetY     (4)
+#define FFPARAM_Line_Saturation  (5)
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Plugin information
@@ -45,6 +50,21 @@ AddSubtract::AddSubtract()
     SetParamInfo(FFPARAM_Float1,"Float 1",FF_TYPE_STANDARD,0.0f);
     m_Float1 = 0.0f;
 
+    
+    lineNum = 40.0f;
+    SetParamInfo(FFPARAM_Line_Number,"Line Number",FF_TYPE_STANDARD,lineNum/300.0f);
+    
+    lineWidth = 0.2f;
+    SetParamInfo(FFPARAM_Line_Width,"Line Width",FF_TYPE_STANDARD,lineWidth);
+    
+    offsetY = 0.1f;
+    SetParamInfo(FFPARAM_OffsetY,"Offset Y",FF_TYPE_STANDARD,offsetY);
+    
+    lineSaturation = 4.0f;
+    SetParamInfo(FFPARAM_Line_Saturation,"Line Saturation",FF_TYPE_STANDARD,lineSaturation/10.0f);
+    
+
+    
 }
 
 AddSubtract::~AddSubtract()
@@ -73,6 +93,15 @@ FFResult AddSubtract::InitGL(const FFGLViewportStruct *vp)
     m_HeightLocation = m_shader.FindUniform("height");
     m_SwitchTexLocation = m_shader.FindUniform("switchTex");
     m_Float1Location = m_shader.FindUniform("float1");
+    
+    lineNumLoc = m_shader.FindUniform("lineNum");
+    lineWidthLoc = m_shader.FindUniform("lineWidth");
+    offsetYLoc = m_shader.FindUniform("offsetY");
+    lineSaturationLoc = m_shader.FindUniform("lineSaturation");
+    
+    
+    
+    
     
 	//the 0 means that the 'inputTexture' in
 	//the shader will use the texture bound to GL texture unit 0
@@ -141,6 +170,12 @@ FFResult AddSubtract::ProcessOpenGL(ProcessOpenGLStruct *pGL)
     }
     
     
+    glUniform1f(lineNumLoc,lineNum);
+    glUniform1f(lineWidthLoc,lineWidth);
+    glUniform1f(offsetYLoc,offsetY);
+    glUniform1f(lineSaturationLoc,lineSaturation);
+    
+    
     
     
 	//activate texture unit 1 and bind the input texture
@@ -192,6 +227,21 @@ float AddSubtract::GetFloatParameter(unsigned int dwIndex)
         case FFPARAM_Float1:
             retValue = m_Float1;
             return retValue;
+            
+        case FFPARAM_Line_Number:
+            retValue = lineNum / 300.0;
+            return retValue;
+        case FFPARAM_Line_Width:
+            retValue = lineWidth;
+            return retValue;
+        case FFPARAM_OffsetY:
+            retValue = offsetY;
+            return retValue;
+        case FFPARAM_Line_Saturation:
+            retValue = lineSaturation / 10.0;
+            return retValue;
+            
+
         default:
             return retValue;
     }
@@ -207,6 +257,19 @@ FFResult AddSubtract::SetFloatParameter(unsigned int dwIndex, float value)
     case FFPARAM_SwitchTex:
         m_SwitchTex = value > 0.5;
         break;
+    case FFPARAM_Line_Number:
+        lineNum = value * 300.0;
+        break;
+    case FFPARAM_Line_Width:
+       lineWidth = value;
+        break;
+    case FFPARAM_OffsetY:
+       offsetY = value;
+        break;
+    case FFPARAM_Line_Saturation:
+       lineSaturation = value*10.0;
+        break;
+
 	default:
 		return FF_FAIL;
 	}
