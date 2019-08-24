@@ -11,18 +11,21 @@
 
 
 
-#define FFPARAM_bWordRotate       (4)
-#define FFPARAM_bWordTracking     (5)
+
+#define FFPARAM_bWordRotate       (0)
+#define FFPARAM_bWordTracking     (1)
 
 
-#define FFPARAM_wordLineNum       (13)
-#define FFPARAM_wordLineSpacingRatio      (14)
-#define FFPARAM_wordWordSpacingRatio      (15)
-#define FFPARAM_wordOffset        (16)
+#define FFPARAM_wordLineNum       (2)
+#define FFPARAM_wordLineSpacingRatio      (3)
+#define FFPARAM_wordWordSpacingRatio      (4)
+#define FFPARAM_wordOffset        (5)
 
 
-#define FFPARAM_trk1Angle     (17)
-#define FFPARAM_trk1Power     (18)
+#define FFPARAM_trk1Angle     (6)
+#define FFPARAM_trk1Power     (7)
+
+
 
 
 
