@@ -10,27 +10,13 @@
 //#define FFPARAM_Float1      (1)
 
 
-#define FFPARAM_bLineRipple       (0)
-#define FFPARAM_bLineTracking     (1)
+#define FFPARAM_trk1Angle     (0)
 
-#define FFPARAM_lineNum       (2)
-#define FFPARAM_lineWidth     (3)
-#define FFPARAM_lineOffset        (4)
-#define FFPARAM_lineMiRippleSize      (5)
-#define FFPARAM_lineMiRippleSpeed     (6)
-#define FFPARAM_lineMaRippleSize      (7)
-#define FFPARAM_lineMaRippleSpeed     (8)
+#define FFPARAM_trk2Angle     (1)
 
-#define FFPARAM_trk1Angle     (9)
-#define FFPARAM_trk1Power     (10)
+#define FFPARAM_trk3Angle     (2)
 
-#define FFPARAM_trk2Angle     (11)
-#define FFPARAM_trk2Power     (12)
-
-#define FFPARAM_trk3Angle     (13)
-#define FFPARAM_trk3Power     (14)
-
-
+#define FFPARAM_distortScale  (3)
 
 
 
@@ -41,14 +27,14 @@
 
 static CFFGLPluginInfo PluginInfo ( 
 	AddSubtract::CreateInstance,		// Create method
-	"PWL201908",								// Plugin unique ID
-	"P Wave Line",					// Plugin name
+	"PWD201908",								// Plugin unique ID
+	"P Wave Distort",					// Plugin name
 	1,						   			// API major version number 													
 	500,								// API minor version number
 	1,									// Plugin major version number
 	000,								// Plugin minor version number
 	FF_EFFECT,							// Plugin type
-	"P Wave Line",			// Plugin description
+	"P Wave Distort",			// Plugin description
 	"by Pampa -- lohosoft.com"				// About
 );
 
@@ -74,47 +60,18 @@ AddSubtract::AddSubtract()
     
     // default value;
     
-    bLineRipple = true;
-    bLineTracking = false;
-    
-
-    
-    lineNum = 20;
-    lineWidth = 0.02;
-    lineOffset = 2.0;
-    lineMiRippleSize = 0.3;
-    lineMiRippleSpeed = 1.0;
-    lineMaRippleSize = 0.3;
-    lineMaRippleSpeed = 1.0;
-    
-
-
-    SetParamInfo(FFPARAM_bLineRipple ,"line ripple",FF_TYPE_BOOLEAN,bLineRipple);
-    SetParamInfo(FFPARAM_bLineTracking,"line tracking",FF_TYPE_BOOLEAN,bLineTracking);
-    
-    SetParamInfo(FFPARAM_lineNum ,"line number",FF_TYPE_STANDARD,lineNum/200.0f);
-    SetParamInfo(FFPARAM_lineWidth,"line width",FF_TYPE_STANDARD,lineWidth * 10.0f);
-    SetParamInfo(FFPARAM_lineOffset,"line offset",FF_TYPE_STANDARD,lineOffset / 50.0f);
-    
-    SetParamInfo(FFPARAM_lineMiRippleSize,"line mi size",FF_TYPE_STANDARD,lineMiRippleSize);
-    SetParamInfo(FFPARAM_lineMiRippleSpeed,"line mi speed",FF_TYPE_STANDARD,lineMiRippleSpeed / 10.0f);
-    SetParamInfo(FFPARAM_lineMaRippleSize,"line ma size",FF_TYPE_STANDARD,lineMaRippleSize);
-    SetParamInfo(FFPARAM_lineMaRippleSpeed,"line ma speed",FF_TYPE_STANDARD,lineMaRippleSpeed / 10.0f);
-    
-
-
-    
-    
-    
+    trk1Angle = 0.0f;
+    trk2Angle = 0.0f;
+    trk3Angle = 0.0f;
+    distortScale = 1.0f;
     SetParamInfo(FFPARAM_trk1Angle,"trk 1 angle",FF_TYPE_STANDARD,trk1Angle);
-    SetParamInfo(FFPARAM_trk1Power,"trk 1 power",FF_TYPE_STANDARD,trk1Power);
     
     SetParamInfo(FFPARAM_trk2Angle,"trk 2 angle",FF_TYPE_STANDARD,trk2Angle);
-    SetParamInfo(FFPARAM_trk2Power,"trk 2 power",FF_TYPE_STANDARD,trk2Power);
     
     SetParamInfo(FFPARAM_trk3Angle,"trk 3 angle",FF_TYPE_STANDARD,trk3Angle);
-    SetParamInfo(FFPARAM_trk3Power,"trk 3 power",FF_TYPE_STANDARD,trk3Power);
-    
+
+    SetParamInfo(FFPARAM_distortScale,"distort scale",FF_TYPE_STANDARD,distortScale / 10.0f);
+
     
 }
 
@@ -147,35 +104,14 @@ FFResult AddSubtract::InitGL(const FFGLViewportStruct *vp)
     
     
     
-    bLineRippleLoc = m_shader.FindUniform("bLineRipple");
-    bLineTrackingLoc = m_shader.FindUniform("bLineTracking");
-
-    
-
-
-    
-    lineNumLoc = m_shader.FindUniform("lineNum");
-    lineWidthLoc = m_shader.FindUniform("lineWidth");
-    lineOffsetLoc = m_shader.FindUniform("lineOffset");
-    lineMiRippleSizeLoc = m_shader.FindUniform("lineMiRippleSize");
-    lineMiRippleSpeedLoc = m_shader.FindUniform("lineMiRippleSpeed");
-    lineMaRippleSizeLoc = m_shader.FindUniform("lineMaRippleSize");
-    lineMaRippleSpeedLoc = m_shader.FindUniform("lineMaRippleSpeed");
-    
-    
-    
     trk1AngleLoc = m_shader.FindUniform("trk1Angle");
-    trk1PowerLoc = m_shader.FindUniform("trk1Power");
-    
     
     trk2AngleLoc = m_shader.FindUniform("trk2Angle");
-    trk2PowerLoc = m_shader.FindUniform("trk2Power");
-    
     
     trk3AngleLoc = m_shader.FindUniform("trk3Angle");
-    trk3PowerLoc = m_shader.FindUniform("trk3Power");
+
     
-    
+    distortScaleLoc = m_shader.FindUniform("distortScale");
     
     
     
@@ -237,54 +173,15 @@ FFResult AddSubtract::ProcessOpenGL(ProcessOpenGLStruct *pGL)
     
 //    glUniform1f(m_Float1Location, m_Float1);
     
-    
-    glUniform1f(lineNumLoc,lineNum);
-    glUniform1f(lineWidthLoc,lineWidth);
-    glUniform1f(lineOffsetLoc,lineOffset);
-    glUniform1f(lineMiRippleSizeLoc,lineMiRippleSize);
-    glUniform1f(lineMiRippleSpeedLoc,lineMiRippleSpeed);
-    glUniform1f(lineMaRippleSizeLoc,lineMaRippleSize);
-    glUniform1f(lineMaRippleSpeedLoc,lineMaRippleSpeed);
-    
-    
-    
+
     
     glUniform1f(trk1AngleLoc,trk1Angle);
-    glUniform1f(trk1PowerLoc,trk1Power);
-
     
     glUniform1f(trk2AngleLoc,trk2Angle);
-    glUniform1f(trk2PowerLoc,trk2Power);
-    
     
     glUniform1f(trk3AngleLoc,trk3Angle);
-    glUniform1f(trk3PowerLoc,trk3Power);
     
-    
-    
-
-    
-
-    if(bLineRipple){
-        glUniform1f(bLineRippleLoc,1.0);
-        
-    }else{
-        glUniform1f(bLineRippleLoc,0.0);
-        
-    }
-    
-    
-    
-
-    if(bLineTracking){
-        glUniform1f(bLineTrackingLoc,1.0);
-        
-    }else{
-        glUniform1f(bLineTrackingLoc,0.0);
-        
-    }
-    
-
+    glUniform1f(distortScaleLoc, distortScale);
     
     
     
@@ -338,57 +235,24 @@ float AddSubtract::GetFloatParameter(unsigned int dwIndex)
 //            retValue = m_Float1;
 //            return retValue;
 
-        case FFPARAM_bLineRipple :
-            retValue = bLineRipple;
-            return retValue;
-        case FFPARAM_bLineTracking:
-            retValue = bLineTracking;
-            return retValue;
             
-
-        case FFPARAM_lineNum :
-            retValue = lineNum / 200,0;
-            return retValue;
-        case FFPARAM_lineWidth:
-            retValue = lineWidth * 10.0;
-            return retValue;
-        case FFPARAM_lineOffset:
-            retValue = lineOffset / 50.0;
-            return retValue;
-        case FFPARAM_lineMiRippleSize:
-            retValue = lineMiRippleSize;
-            return retValue;
-        case FFPARAM_lineMiRippleSpeed:
-            retValue = lineMiRippleSpeed / 10.;
-            return retValue;
-        case FFPARAM_lineMaRippleSize:
-            retValue = lineMaRippleSize;
-            return retValue;
-        case FFPARAM_lineMaRippleSpeed:
-            retValue = lineMaRippleSpeed / 10.;
-            return retValue;
-
         case FFPARAM_trk1Angle:
             retValue = trk1Angle;
             return retValue;
-        case FFPARAM_trk1Power:
-            retValue = trk1Power;
-            return retValue;
-            
+
             
         case FFPARAM_trk2Angle:
             retValue = trk2Angle;
             return retValue;
-        case FFPARAM_trk2Power:
-            retValue = trk2Power;
-            return retValue;
-        
+
             
         case FFPARAM_trk3Angle:
             retValue = trk3Angle;
             return retValue;
-        case FFPARAM_trk3Power:
-            retValue = trk3Power;
+
+            
+        case FFPARAM_distortScale:
+            retValue = distortScale/10.0;
             return retValue;
             
         default:
@@ -408,63 +272,24 @@ FFResult AddSubtract::SetFloatParameter(unsigned int dwIndex, float value)
 //        break;
             
             
-        case FFPARAM_bLineRipple:
-            bLineRipple = value > 0.5;
-            break;
-        case FFPARAM_bLineTracking:
-            bLineTracking = value > 0.5;
-            break;
-            
-
-
-        case FFPARAM_lineNum:
-            lineNum = value * 200.0;
-            break;
-        case FFPARAM_lineWidth:
-            lineWidth = value / 10.;
-            break;
-        case FFPARAM_lineOffset:
-            lineOffset = value * 50.0;
-            break;
-        case FFPARAM_lineMiRippleSize:
-            lineMiRippleSize = value;
-            break;
-        case FFPARAM_lineMiRippleSpeed:
-            lineMiRippleSpeed = value * 10.;
-            break;
-        case FFPARAM_lineMaRippleSize:
-            lineMaRippleSize = value;
-            break;
-        case FFPARAM_lineMaRippleSpeed:
-            lineMaRippleSpeed = value * 10.;
-            break;
 
             
         case FFPARAM_trk1Angle:
             trk1Angle = value;
             break;
-        case FFPARAM_trk1Power:
-            trk1Power = value;
-            break;
-            
+
         case FFPARAM_trk2Angle:
             trk2Angle = value;
-            break;
-        case FFPARAM_trk2Power:
-            trk2Power = value;
             break;
             
             
         case FFPARAM_trk3Angle:
             trk3Angle = value;
             break;
-        case FFPARAM_trk3Power:
-            trk3Power = value;
+            
+        case FFPARAM_distortScale:
+            distortScale = value * 10.0;
             break;
-            
-            
-
-
         default:
             return FF_FAIL;
 	}
