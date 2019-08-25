@@ -89,7 +89,7 @@ AddSubtract::AddSubtract()
     SetParamInfo(FFPARAM_bLineTracking,"line tracking",FF_TYPE_BOOLEAN,bLineTracking);
     
     SetParamInfo(FFPARAM_lineNum ,"line number",FF_TYPE_STANDARD,lineNum/100.0f);
-    SetParamInfo(FFPARAM_lineWidth,"line width",FF_TYPE_STANDARD,lineWidth * 50.0f);
+    SetParamInfo(FFPARAM_lineWidth,"line width",FF_TYPE_STANDARD,lineWidth * 10.0f);
     SetParamInfo(FFPARAM_lineOffset,"line offset",FF_TYPE_STANDARD,lineOffset / 20.0f);
     
     SetParamInfo(FFPARAM_lineMiRippleSize,"line mi size",FF_TYPE_STANDARD,lineMiRippleSize);
@@ -317,7 +317,7 @@ float AddSubtract::GetFloatParameter(unsigned int dwIndex)
             retValue = lineNum / 100,0;
             return retValue;
         case FFPARAM_lineWidth:
-            retValue = lineWidth * 50.0;
+            retValue = lineWidth * 10.0;
             return retValue;
         case FFPARAM_lineOffset:
             retValue = lineOffset / 20.0;
@@ -372,7 +372,7 @@ FFResult AddSubtract::SetFloatParameter(unsigned int dwIndex, float value)
         lineNum = value * 100.0;
         break;
     case FFPARAM_lineWidth:
-        lineWidth = value / 50.;
+        lineWidth = value / 10.;
         break;
     case FFPARAM_lineOffset:
         lineOffset = value * 20.0;

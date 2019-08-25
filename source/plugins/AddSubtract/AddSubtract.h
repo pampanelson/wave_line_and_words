@@ -67,7 +67,7 @@ protected:
 //    retValue = lineNum / 100,0;
 //    return retValue;
 //case FFPARAM_lineWidth:
-//    retValue = lineWidth * 50.0;
+//    retValue = lineWidth * 10.0;
 //    return retValue;
 //case FFPARAM_lineOffset:
 //    retValue = lineOffset / 20.0;
