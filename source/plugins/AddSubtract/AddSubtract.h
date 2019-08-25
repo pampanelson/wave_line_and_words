@@ -55,6 +55,23 @@ protected:
     float trk1Power;
     
 
+    
+//case FFPARAM_wordRotateSpeed:
+//    retValue = wordRotateSpeed / 10.0;
+//    return retValue;
+//case FFPARAM_wordLineNum :
+//    retValue = wordLineNum / 300.0;
+//    return retValue;
+//case FFPARAM_wordLineSpacingRatio:
+//    retValue = wordLineSpacingRatio;
+//    return retValue;
+//case FFPARAM_wordWordSpacingRatio:
+//    retValue = wordWordSpacingRatio;
+//    return retValue;
+//case FFPARAM_wordOffset :
+//    retValue = wordOffset / 20.0;
+//    return retValue;
+//    
     GLint bWordRotateLoc;
     GLint bWordTrackingLoc;
     

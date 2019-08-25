@@ -86,11 +86,11 @@ AddSubtract::AddSubtract()
     SetParamInfo(FFPARAM_bWordRotate ,"word rotate",FF_TYPE_BOOLEAN,bWordRotate);
     SetParamInfo(FFPARAM_bWordTracking,"word tracking",FF_TYPE_BOOLEAN,bWordTracking);
 
-    SetParamInfo(FFPARAM_wordRotateSpeed ,"word rotate speed",FF_TYPE_STANDARD,wordRotateSpeed);
-    SetParamInfo(FFPARAM_wordLineNum ,"word line number",FF_TYPE_STANDARD,wordLineNum);
+    SetParamInfo(FFPARAM_wordRotateSpeed ,"word rotate speed",FF_TYPE_STANDARD,wordRotateSpeed / 10.0f);
+    SetParamInfo(FFPARAM_wordLineNum ,"word line number",FF_TYPE_STANDARD,wordLineNum / 300.0f);
     SetParamInfo(FFPARAM_wordLineSpacingRatio,"word line spacing",FF_TYPE_STANDARD,wordLineSpacingRatio);
     SetParamInfo(FFPARAM_wordWordSpacingRatio,"word word spacing",FF_TYPE_STANDARD,wordWordSpacingRatio);
-    SetParamInfo(FFPARAM_wordOffset,"word offset",FF_TYPE_STANDARD,wordOffset);
+    SetParamInfo(FFPARAM_wordOffset,"word offset",FF_TYPE_STANDARD,wordOffset / 20.0f);
     
     
     SetParamInfo(FFPARAM_trk1Angle,"trk 1 angle",FF_TYPE_STANDARD,trk1Angle);
