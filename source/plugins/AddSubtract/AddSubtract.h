@@ -45,7 +45,7 @@ protected:
     bool bLineRipple;
     bool bLineTracking;
     
-
+    float bigDistort;
     float lineNum;
     float lineWidth;
     float lineOffset;
@@ -88,12 +88,17 @@ protected:
     float trk1Angle;
     float trk1Power;
     
-
+    float trk2Angle;
+    float trk2Power;
+    
+    float trk3Angle;
+    float trk3Power;
+    
     
     GLint bLineRippleLoc;
     GLint bLineTrackingLoc;
     
-
+    GLint bigDistortLoc;
     GLint lineNumLoc;
     GLint lineWidthLoc;
     GLint lineOffsetLoc;
@@ -105,6 +110,10 @@ protected:
 
     GLint trk1AngleLoc;
     GLint trk1PowerLoc;
+    GLint trk2AngleLoc;
+    GLint trk2PowerLoc;
+    GLint trk3AngleLoc;
+    GLint trk3PowerLoc;
     
     
     FFGLShader m_shader;

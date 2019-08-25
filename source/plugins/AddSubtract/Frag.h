@@ -37,14 +37,22 @@ uniform float lineMaRippleSpeed;
 uniform float trk1Angle;
 uniform float trk1Power;
     
+uniform float trk2Angle;
+uniform float trk2Power;
 
+uniform float trk3Angle;
+uniform float trk3Power;
+
+uniform float bigDistort; // 0.0 ~ 1.0
+                                                        
+                                                        
 float PI = 3.1415926535;
 float aPI = acos(-1.);
 
 
 // Polynomial smooth min (for copying and pasting into your shaders)
 float smin(float a, float b, float k) {
-    float h = clamp(0.5 + 0.5*(a-b)/k, 0.0, 1.0);
+        float h = clamp(0.5 + 0.5*(a-b)/k, 0.0, 1.0);
     return mix(a, b, h) - k*h*(1.0-h);
 }
 
@@ -68,6 +76,25 @@ float wave3(float x,float peak,float narrow){
     return res;
 }
 
+float wave_distort2(float use,vec2 st,float angle,float scale){
+    float res;
+    
+    if(use < 0.5){
+        res = 0.;
+    }else{
+//        angle = .5; // 0.25 ~ 0.75 is 0 ~ pi , 0.5 is up direct
+        angle *= 0.5;
+        angle += 0.25;
+        
+        float peakSharp = 0.3;// 0.3~ 0.4  add into parameters maybe ======  TODO
+        res = 1. - pow(abs(st.x-angle),peakSharp);
+        res = smoothstep(0.0,0.77,res);
+        res *= scale; // pass parameter
+    }
+
+    return res;
+}
+
 
 float wave_distort(float use,vec2 st,float angle){
     // distort =========================================
@@ -83,8 +110,9 @@ float wave_distort(float use,vec2 st,float angle){
     //x = -x;
 
     // =+++++++++++++ IMPORTANT ++++++++++++++++++++++++++++
+    // not use distort or distort angle is 0.0 which is default value
     if(use < 0.5){
-        
+         
        x += 1.; // this value makes no distort ================ . TODO 
     }
     else{
@@ -100,19 +128,19 @@ float wave_distort(float use,vec2 st,float angle){
     float y1 = wave2(x,a1,f1);
     float a2 = 0.0;//
     a2 = sin(iTime*10.)*0.1;
-    float f2 = 8.0; // power ===============================
+    float f2 = 18.0; // power ===============================
     float y2 = wave2(x+0.1,a2,f2);
     y = smax(y,y1,0.9);
     y = smax(y,y2,0.8);
     // y = smax(y,wave1(x*0.01),-0.9);
-    float peak3 = 0.1;//
+    float peak3 = 0.15;//
     float narrow3 = 4.0;//*sin(iTime*10.);
     float y3 = wave3(x+0.2,peak3,narrow3);
 
     y = smax(y,y3,0.8);
     y = smax(y,0.2,0.9);
 
-    y *= 1.2;// whole scale =======================
+    y *= .8;// whole scale =======================
 
     return y;
 }
@@ -170,7 +198,7 @@ void main()
     // prepare uv for st **********************************
     uv *= 2.0; // -1. ~ 1.
     uv.y += iResolution.y/iResolution.x;// origin point on (0.5 * x , 0.0)
-    
+    uv.y -= 0.2;
 
     // uv.y -= wordOffset;// whole screen offset ======================
     // uv *= 0.5;// 0 ~ 1
@@ -178,6 +206,25 @@ void main()
     vec2 st = vec2(atan(uv.x,uv.y),length(uv));
     //st.x += PI;// 0 ~ 2PI on -y axis 
 
+
+    //domain for big distort  
+
+    vec2 uv1 = (fragCoord.xy - .5 * iResolution.xy)/iResolution.y; // uv -.5 ~ .5
+    uv1 *= 2.0; // -1. ~ 1.
+    uv1.y += 1.0;
+
+    vec2 st1 = vec2(atan(uv1.x,uv1.y),length(uv1));
+
+    st1.x = st1.x/(PI*2.0) + .5; // before st.x is -π ~ π after is  normalized 0.0 ~ 1.0
+
+
+    float d1  = wave_distort2(bLineTracking,st1,trk1Angle,bigDistort);
+    d1 += wave_distort2(bLineTracking,st1,trk2Angle,bigDistort);
+    d1 += wave_distort2(bLineTracking,st1,trk3Angle,bigDistort);
+
+    st.y += d1; //  stronger wave base on tracking angle
+    
+//    st.y += abs(st.x) ;
     // distort =========================================
     
     // float angle;
@@ -186,8 +233,10 @@ void main()
     // angle = (sin(iTime) + 1.)*0.5;// pass parameter
 
     float y = wave_distort(bLineTracking,st,trk1Angle);
-    
-    
+    y += wave_distort(bLineTracking,st,trk2Angle);
+    y += wave_distort(bLineTracking,st,trk3Angle);
+
+
     vec3 col;
 
 
@@ -197,10 +246,10 @@ void main()
     
     
     // debug distort wave =============
-    // bool bWaveDistortDebug = false;
-    // if(st.y < y && bWaveDistortDebug){
-    //  col = vec3(1.0);
-    // }
+     bool bWaveDistortDebug = true;
+//     if(st.y < y && bWaveDistortDebug){
+//         col = vec3(1.0);
+//     }
 
     // Output to screen
 
