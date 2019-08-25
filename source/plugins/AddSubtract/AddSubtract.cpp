@@ -88,14 +88,14 @@ AddSubtract::AddSubtract()
     SetParamInfo(FFPARAM_bLineRipple ,"line ripple",FF_TYPE_BOOLEAN,bLineRipple);
     SetParamInfo(FFPARAM_bLineTracking,"line tracking",FF_TYPE_BOOLEAN,bLineTracking);
     
-    SetParamInfo(FFPARAM_lineNum ,"line number",FF_TYPE_STANDARD,lineNum);
-    SetParamInfo(FFPARAM_lineWidth,"line width",FF_TYPE_STANDARD,lineWidth);
-    SetParamInfo(FFPARAM_lineOffset,"line offset",FF_TYPE_STANDARD,lineOffset);
+    SetParamInfo(FFPARAM_lineNum ,"line number",FF_TYPE_STANDARD,lineNum/100.0f);
+    SetParamInfo(FFPARAM_lineWidth,"line width",FF_TYPE_STANDARD,lineWidth * 50.0f);
+    SetParamInfo(FFPARAM_lineOffset,"line offset",FF_TYPE_STANDARD,lineOffset / 20.0f);
     
     SetParamInfo(FFPARAM_lineMiRippleSize,"line mi size",FF_TYPE_STANDARD,lineMiRippleSize);
-    SetParamInfo(FFPARAM_lineMiRippleSpeed,"line mi speed",FF_TYPE_STANDARD,lineMiRippleSpeed);
+    SetParamInfo(FFPARAM_lineMiRippleSpeed,"line mi speed",FF_TYPE_STANDARD,lineMiRippleSpeed / 10.0f);
     SetParamInfo(FFPARAM_lineMaRippleSize,"line ma size",FF_TYPE_STANDARD,lineMaRippleSize);
-    SetParamInfo(FFPARAM_lineMaRippleSpeed,"line ma speed",FF_TYPE_STANDARD,lineMaRippleSpeed);
+    SetParamInfo(FFPARAM_lineMaRippleSpeed,"line ma speed",FF_TYPE_STANDARD,lineMaRippleSpeed / 10.0f);
     
 
     
@@ -314,25 +314,25 @@ float AddSubtract::GetFloatParameter(unsigned int dwIndex)
             
 
         case FFPARAM_lineNum :
-            retValue = lineNum;
+            retValue = lineNum / 100,0;
             return retValue;
         case FFPARAM_lineWidth:
-            retValue = lineWidth;
+            retValue = lineWidth * 50.0;
             return retValue;
-        case FFPARAM_lineOffset  :
-            retValue = lineOffset;
+        case FFPARAM_lineOffset:
+            retValue = lineOffset / 20.0;
             return retValue;
         case FFPARAM_lineMiRippleSize:
             retValue = lineMiRippleSize;
             return retValue;
         case FFPARAM_lineMiRippleSpeed:
-            retValue = lineMiRippleSpeed;
+            retValue = lineMiRippleSpeed / 10.;
             return retValue;
         case FFPARAM_lineMaRippleSize:
             retValue = lineMaRippleSize;
             return retValue;
         case FFPARAM_lineMaRippleSpeed:
-            retValue = lineMaRippleSpeed;
+            retValue = lineMaRippleSpeed / 10.;
             return retValue;
 
             
@@ -369,25 +369,25 @@ FFResult AddSubtract::SetFloatParameter(unsigned int dwIndex, float value)
 
 
     case FFPARAM_lineNum:
-        lineNum = value;
+        lineNum = value * 100.0;
         break;
     case FFPARAM_lineWidth:
-        lineWidth = value;
+        lineWidth = value / 50.;
         break;
     case FFPARAM_lineOffset:
-        lineOffset = value;
+        lineOffset = value * 20.0;
         break;
     case FFPARAM_lineMiRippleSize:
         lineMiRippleSize = value;
         break;
     case FFPARAM_lineMiRippleSpeed:
-        lineMiRippleSpeed = value;
+        lineMiRippleSpeed = value * 10.;
         break;
     case FFPARAM_lineMaRippleSize:
         lineMaRippleSize = value;
         break;
     case FFPARAM_lineMaRippleSpeed:
-        lineMaRippleSpeed = value;
+        lineMaRippleSpeed = value * 10.;
         break;
 
         
