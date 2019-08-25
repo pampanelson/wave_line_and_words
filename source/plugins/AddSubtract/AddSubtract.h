@@ -44,8 +44,7 @@ protected:
     
     bool bLineRipple;
     bool bLineTracking;
-    
-    float bigDistort;
+
     float lineNum;
     float lineWidth;
     float lineOffset;
@@ -98,7 +97,6 @@ protected:
     GLint bLineRippleLoc;
     GLint bLineTrackingLoc;
     
-    GLint bigDistortLoc;
     GLint lineNumLoc;
     GLint lineWidthLoc;
     GLint lineOffsetLoc;

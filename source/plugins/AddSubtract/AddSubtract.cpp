@@ -30,8 +30,6 @@
 #define FFPARAM_trk3Angle     (13)
 #define FFPARAM_trk3Power     (14)
 
-#define FFPARAM_bigDistort    (15)
-
 
 
 
@@ -88,13 +86,13 @@ AddSubtract::AddSubtract()
     lineMiRippleSpeed = 1.0;
     lineMaRippleSize = 0.3;
     lineMaRippleSpeed = 1.0;
-    bigDistort = 0.2;
+    
 
 
     SetParamInfo(FFPARAM_bLineRipple ,"line ripple",FF_TYPE_BOOLEAN,bLineRipple);
     SetParamInfo(FFPARAM_bLineTracking,"line tracking",FF_TYPE_BOOLEAN,bLineTracking);
     
-    SetParamInfo(FFPARAM_lineNum ,"line number",FF_TYPE_STANDARD,lineNum/100.0f);
+    SetParamInfo(FFPARAM_lineNum ,"line number",FF_TYPE_STANDARD,lineNum/200.0f);
     SetParamInfo(FFPARAM_lineWidth,"line width",FF_TYPE_STANDARD,lineWidth * 10.0f);
     SetParamInfo(FFPARAM_lineOffset,"line offset",FF_TYPE_STANDARD,lineOffset / 50.0f);
     
@@ -104,7 +102,6 @@ AddSubtract::AddSubtract()
     SetParamInfo(FFPARAM_lineMaRippleSpeed,"line ma speed",FF_TYPE_STANDARD,lineMaRippleSpeed / 10.0f);
     
 
-    SetParamInfo(FFPARAM_bigDistort,"big distort",FF_TYPE_STANDARD,bigDistort);
 
     
     
@@ -165,7 +162,7 @@ FFResult AddSubtract::InitGL(const FFGLViewportStruct *vp)
     lineMaRippleSizeLoc = m_shader.FindUniform("lineMaRippleSize");
     lineMaRippleSpeedLoc = m_shader.FindUniform("lineMaRippleSpeed");
     
-    bigDistortLoc = m_shader.FindUniform("bigDistort");
+    
     
     trk1AngleLoc = m_shader.FindUniform("trk1Angle");
     trk1PowerLoc = m_shader.FindUniform("trk1Power");
@@ -249,7 +246,7 @@ FFResult AddSubtract::ProcessOpenGL(ProcessOpenGLStruct *pGL)
     glUniform1f(lineMaRippleSizeLoc,lineMaRippleSize);
     glUniform1f(lineMaRippleSpeedLoc,lineMaRippleSpeed);
     
-    glUniform1f(bigDistortLoc, bigDistort);
+    
     
     
     glUniform1f(trk1AngleLoc,trk1Angle);
@@ -350,7 +347,7 @@ float AddSubtract::GetFloatParameter(unsigned int dwIndex)
             
 
         case FFPARAM_lineNum :
-            retValue = lineNum / 100,0;
+            retValue = lineNum / 200,0;
             return retValue;
         case FFPARAM_lineWidth:
             retValue = lineWidth * 10.0;
@@ -371,10 +368,6 @@ float AddSubtract::GetFloatParameter(unsigned int dwIndex)
             retValue = lineMaRippleSpeed / 10.;
             return retValue;
 
-        case FFPARAM_bigDistort:
-            retValue = bigDistort;
-            return retValue;
-            
         case FFPARAM_trk1Angle:
             retValue = trk1Angle;
             return retValue;
@@ -425,7 +418,7 @@ FFResult AddSubtract::SetFloatParameter(unsigned int dwIndex, float value)
 
 
         case FFPARAM_lineNum:
-            lineNum = value * 100.0;
+            lineNum = value * 200.0;
             break;
         case FFPARAM_lineWidth:
             lineWidth = value / 10.;
@@ -445,10 +438,7 @@ FFResult AddSubtract::SetFloatParameter(unsigned int dwIndex, float value)
         case FFPARAM_lineMaRippleSpeed:
             lineMaRippleSpeed = value * 10.;
             break;
-            
-        case FFPARAM_bigDistort:
-            bigDistort = value;
-            break;
+
             
         case FFPARAM_trk1Angle:
             trk1Angle = value;

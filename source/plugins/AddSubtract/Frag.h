@@ -43,7 +43,7 @@ uniform float trk2Power;
 uniform float trk3Angle;
 uniform float trk3Power;
 
-uniform float bigDistort; // 0.0 ~ 1.0
+
                                                         
                                                         
 float PI = 3.1415926535;
@@ -76,24 +76,6 @@ float wave3(float x,float peak,float narrow){
     return res;
 }
 
-float wave_distort2(float use,vec2 st,float angle,float scale){
-    float res;
-    
-    if(use < 0.5){
-        res = 0.;
-    }else{
-//        angle = .5; // 0.25 ~ 0.75 is 0 ~ pi , 0.5 is up direct
-        angle *= 0.5;
-        angle += 0.25;
-        
-        float peakSharp = 0.3;// 0.3~ 0.4  add into parameters maybe ======  TODO
-        res = 1. - pow(abs(st.x-angle),peakSharp);
-        res = smoothstep(0.0,0.77,res);
-        res *= scale; // pass parameter
-    }
-
-    return res;
-}
 
 
 float wave_distort(float use,vec2 st,float angle){
@@ -198,7 +180,6 @@ void main()
     // prepare uv for st **********************************
     uv *= 2.0; // -1. ~ 1.
     uv.y += iResolution.y/iResolution.x;// origin point on (0.5 * x , 0.0)
-    uv.y -= 0.2;
 
     // uv.y -= wordOffset;// whole screen offset ======================
     // uv *= 0.5;// 0 ~ 1
@@ -206,32 +187,7 @@ void main()
     vec2 st = vec2(atan(uv.x,uv.y),length(uv));
     //st.x += PI;// 0 ~ 2PI on -y axis 
 
-
-    //domain for big distort  
-
-    vec2 uv1 = (fragCoord.xy - .5 * iResolution.xy)/iResolution.y; // uv -.5 ~ .5
-    uv1 *= 2.0; // -1. ~ 1.
-    uv1.y += 1.0;
-
-    vec2 st1 = vec2(atan(uv1.x,uv1.y),length(uv1));
-
-    st1.x = st1.x/(PI*2.0) + .5; // before st.x is -π ~ π after is  normalized 0.0 ~ 1.0
-
-
-    float d1  = wave_distort2(bLineTracking,st1,trk1Angle,bigDistort);
-    d1 += wave_distort2(bLineTracking,st1,trk2Angle,bigDistort);
-    d1 += wave_distort2(bLineTracking,st1,trk3Angle,bigDistort);
-
-    st.y += d1; //  stronger wave base on tracking angle
     
-//    st.y += abs(st.x) ;
-    // distort =========================================
-    
-    // float angle;
-    // angle = 0.0;
-    // angle = clamp(0.0,1.0,angle);//angle is 0. ~ 1, 1 is right direct , 0 is left direct 
-    // angle = (sin(iTime) + 1.)*0.5;// pass parameter
-
     float y = wave_distort(bLineTracking,st,trk1Angle);
     y += wave_distort(bLineTracking,st,trk2Angle);
     y += wave_distort(bLineTracking,st,trk3Angle);
