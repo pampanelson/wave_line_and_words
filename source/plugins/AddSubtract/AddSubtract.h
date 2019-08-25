@@ -49,7 +49,7 @@ protected:
     float wordLineSpacingRatio;
     float wordWordSpacingRatio;
     float wordOffset;
-    
+    float wordRotateSpeed;
     
     float trk1Angle;
     float trk1Power;
@@ -58,7 +58,7 @@ protected:
     GLint bWordRotateLoc;
     GLint bWordTrackingLoc;
     
-
+    GLint wordRotateSpeedLoc;
     GLint wordLineNumLoc;
     GLint wordLineSpacingRatioLoc;
     GLint wordWordspacingRatioLoc;

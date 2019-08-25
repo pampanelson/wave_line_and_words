@@ -15,15 +15,15 @@
 #define FFPARAM_bWordRotate       (0)
 #define FFPARAM_bWordTracking     (1)
 
+#define FFPARAM_wordRotateSpeed     (2)
+#define FFPARAM_wordLineNum       (3)
+#define FFPARAM_wordLineSpacingRatio      (4)
+#define FFPARAM_wordWordSpacingRatio      (5)
+#define FFPARAM_wordOffset        (6)
 
-#define FFPARAM_wordLineNum       (2)
-#define FFPARAM_wordLineSpacingRatio      (3)
-#define FFPARAM_wordWordSpacingRatio      (4)
-#define FFPARAM_wordOffset        (5)
 
-
-#define FFPARAM_trk1Angle     (6)
-#define FFPARAM_trk1Power     (7)
+#define FFPARAM_trk1Angle     (7)
+#define FFPARAM_trk1Power     (8)
 
 
 
@@ -73,7 +73,7 @@ AddSubtract::AddSubtract()
     bWordRotate = true;
     bWordTracking = false;
     
-
+    wordRotateSpeed = 2.0;
     wordLineNum = 20.;
     wordLineSpacingRatio = 0.1;
     wordWordSpacingRatio = 0.1;
@@ -86,6 +86,7 @@ AddSubtract::AddSubtract()
     SetParamInfo(FFPARAM_bWordRotate ,"word rotate",FF_TYPE_BOOLEAN,bWordRotate);
     SetParamInfo(FFPARAM_bWordTracking,"word tracking",FF_TYPE_BOOLEAN,bWordTracking);
 
+    SetParamInfo(FFPARAM_wordRotateSpeed ,"word rotate speed",FF_TYPE_STANDARD,wordRotateSpeed);
     SetParamInfo(FFPARAM_wordLineNum ,"word line number",FF_TYPE_STANDARD,wordLineNum);
     SetParamInfo(FFPARAM_wordLineSpacingRatio,"word line spacing",FF_TYPE_STANDARD,wordLineSpacingRatio);
     SetParamInfo(FFPARAM_wordWordSpacingRatio,"word word spacing",FF_TYPE_STANDARD,wordWordSpacingRatio);
@@ -127,7 +128,7 @@ FFResult AddSubtract::InitGL(const FFGLViewportStruct *vp)
     bWordTrackingLoc = m_shader.FindUniform("bWordTracking");
 
     
-
+    wordRotateSpeedLoc = m_shader.FindUniform("wordRotateSpeed");
     wordLineNumLoc = m_shader.FindUniform("wordLineNum");
     wordLineSpacingRatioLoc = m_shader.FindUniform("wordLineSpacingRatio");
     wordWordspacingRatioLoc = m_shader.FindUniform("wordWordSpacingRatio");
@@ -203,7 +204,7 @@ FFResult AddSubtract::ProcessOpenGL(ProcessOpenGLStruct *pGL)
 //    glUniform1f(m_Float1Location, m_Float1);
     
     
-
+    glUniform1f(wordRotateSpeedLoc, wordRotateSpeed);
     glUniform1f(wordLineNumLoc,wordLineNum);
     glUniform1f(wordLineSpacingRatioLoc,wordLineSpacingRatio);
     glUniform1f(wordWordspacingRatioLoc,wordWordSpacingRatio);
@@ -294,10 +295,13 @@ float AddSubtract::GetFloatParameter(unsigned int dwIndex)
         case FFPARAM_bWordTracking:
             retValue = bWordTracking;
             return retValue;
-            
+        
 
+        case FFPARAM_wordRotateSpeed:
+            retValue = wordRotateSpeed / 10.0;
+            return retValue;
         case FFPARAM_wordLineNum :
-            retValue = wordLineNum;
+            retValue = wordLineNum / 300.0;
             return retValue;
         case FFPARAM_wordLineSpacingRatio:
             retValue = wordLineSpacingRatio;
@@ -306,7 +310,7 @@ float AddSubtract::GetFloatParameter(unsigned int dwIndex)
             retValue = wordWordSpacingRatio;
             return retValue;
         case FFPARAM_wordOffset :
-            retValue = wordOffset;
+            retValue = wordOffset / 20.0;
             return retValue;
             
             
@@ -340,10 +344,14 @@ FFResult AddSubtract::SetFloatParameter(unsigned int dwIndex, float value)
     case FFPARAM_bWordTracking:
         bWordTracking = value > 0.5;
         break;
-        
-        
+            
+            
+    case FFPARAM_wordRotateSpeed:
+        wordRotateSpeed = value * 10.0;
+        break;
+    
     case FFPARAM_wordLineNum :
-        wordLineNum = value;
+        wordLineNum = value * 300.0;
         break;
     case FFPARAM_wordLineSpacingRatio:
         wordLineSpacingRatio = value;
@@ -352,7 +360,7 @@ FFResult AddSubtract::SetFloatParameter(unsigned int dwIndex, float value)
         wordWordSpacingRatio = value;
         break;
     case FFPARAM_wordOffset:
-        wordOffset = value;
+        wordOffset = value * 20.0;
         break;
         
         
