@@ -30,7 +30,7 @@
 #define FFPARAM_trk3Angle     (13)
 #define FFPARAM_trk3Power     (14)
 
-#define FFPARAM_bigDistort    (15)
+#define FFPARAM_waveScale   (15)
 
 
 
@@ -89,7 +89,7 @@ AddSubtract::AddSubtract()
     lineMaRippleSize = 0.3;
     lineMaRippleSpeed = 1.0;
     bigDistort = 0.2;
-
+    waveScale = 0.0;
 
     SetParamInfo(FFPARAM_bLineRipple ,"line ripple",FF_TYPE_BOOLEAN,bLineRipple);
     SetParamInfo(FFPARAM_bLineTracking,"line tracking",FF_TYPE_BOOLEAN,bLineTracking);
@@ -104,7 +104,7 @@ AddSubtract::AddSubtract()
     SetParamInfo(FFPARAM_lineMaRippleSpeed,"line ma speed",FF_TYPE_STANDARD,lineMaRippleSpeed / 10.0f);
     
 
-    SetParamInfo(FFPARAM_bigDistort,"big distort",FF_TYPE_STANDARD,bigDistort);
+    SetParamInfo(FFPARAM_waveScale,"wave scale",FF_TYPE_STANDARD,waveScale);
 
     
     
@@ -179,7 +179,7 @@ FFResult AddSubtract::InitGL(const FFGLViewportStruct *vp)
     trk3PowerLoc = m_shader.FindUniform("trk3Power");
     
     
-    
+    waveScaleLoc = m_shader.FindUniform("waveScale");
     
     
 	//the 0 means that the 'inputTexture' in
@@ -215,6 +215,8 @@ FFResult AddSubtract::ProcessOpenGL(ProcessOpenGLStruct *pGL)
 
     ticks = getTicks();
     
+    
+
 	//activate our shader
 	m_shader.BindShader();
 
@@ -264,7 +266,7 @@ FFResult AddSubtract::ProcessOpenGL(ProcessOpenGLStruct *pGL)
     glUniform1f(trk3PowerLoc,trk3Power);
     
     
-    
+    glUniform1f(waveScaleLoc, waveScale);
 
     
 
@@ -325,6 +327,21 @@ FFResult AddSubtract::ProcessOpenGL(ProcessOpenGLStruct *pGL)
 	//unbind the shader
 	m_shader.UnbindShader();
 
+    
+    // reset each frame after update frame , not work ,reset it in of app
+//    trk1Angle = 0.0;
+//    trk1Power = 0.0;
+//
+//    trk2Angle = 0.0;
+//    trk2Power = 0.0;
+//
+//    trk3Angle = 0.0;
+//    trk3Power = 0.0;
+//
+    
+    
+    
+    
 	return FF_SUCCESS;
 }
 
@@ -371,8 +388,8 @@ float AddSubtract::GetFloatParameter(unsigned int dwIndex)
             retValue = lineMaRippleSpeed / 10.;
             return retValue;
 
-        case FFPARAM_bigDistort:
-            retValue = bigDistort;
+        case FFPARAM_waveScale:
+            retValue = waveScale;
             return retValue;
             
         case FFPARAM_trk1Angle:
@@ -446,8 +463,8 @@ FFResult AddSubtract::SetFloatParameter(unsigned int dwIndex, float value)
             lineMaRippleSpeed = value * 10.;
             break;
             
-        case FFPARAM_bigDistort:
-            bigDistort = value;
+        case FFPARAM_waveScale:
+            waveScale = value;
             break;
             
         case FFPARAM_trk1Angle:

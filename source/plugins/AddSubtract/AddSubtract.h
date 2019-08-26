@@ -54,6 +54,8 @@ protected:
     float lineMaRippleSize;
     float lineMaRippleSpeed;
     
+    float waveScale;
+    
 //    lineNum = 20;
 //    lineWidth = 0.02;
 //    lineOffset = 2.0;
@@ -107,6 +109,7 @@ protected:
     GLint lineMaRippleSizeLoc;
     GLint lineMaRippleSpeedLoc;
     
+    GLint waveScaleLoc;
 
     GLint trk1AngleLoc;
     GLint trk1PowerLoc;

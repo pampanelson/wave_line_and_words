@@ -32,7 +32,8 @@ uniform float lineMiRippleSize;
 uniform float lineMiRippleSpeed;
 uniform float lineMaRippleSize;
 uniform float lineMaRippleSpeed;
-    
+
+uniform float waveScale;
     
 uniform float trk1Angle;
 uniform float trk1Power;
@@ -76,27 +77,8 @@ float wave3(float x,float peak,float narrow){
     return res;
 }
 
-float wave_distort2(float use,vec2 st,float angle,float scale){
-    float res;
-    
-    if(use < 0.5){
-        res = 0.;
-    }else{
-//        angle = .5; // 0.25 ~ 0.75 is 0 ~ pi , 0.5 is up direct
-        angle *= 0.5;
-        angle += 0.25;
-        
-        float peakSharp = 0.3;// 0.3~ 0.4  add into parameters maybe ======  TODO
-        res = 1. - pow(abs(st.x-angle),peakSharp);
-        res = smoothstep(0.0,0.77,res);
-        res *= scale; // pass parameter
-    }
 
-    return res;
-}
-
-
-float wave_distort(float use,vec2 st,float angle){
+float wave_distort(float use,vec2 st,float angle,float scale){
     // distort =========================================
 
     
@@ -128,7 +110,7 @@ float wave_distort(float use,vec2 st,float angle){
     float y1 = wave2(x,a1,f1);
     float a2 = 0.0;//
     a2 = sin(iTime*10.)*0.1;
-    float f2 = 18.0; // power ===============================
+    float f2 = 8.0; // power ===============================
     float y2 = wave2(x+0.1,a2,f2);
     y = smax(y,y1,0.9);
     y = smax(y,y2,0.8);
@@ -137,10 +119,11 @@ float wave_distort(float use,vec2 st,float angle){
     float narrow3 = 4.0;//*sin(iTime*10.);
     float y3 = wave3(x+0.2,peak3,narrow3);
 
-    y = smax(y,y3,0.8);
-    y = smax(y,0.2,0.9);
+    y = smax(y,y3,0.5);// 0.1 is shaper wave , ============  TODO
+    y = smax(y,0.2,scale);// scale is 0.01 ~ 0.9 , lower is bigger ========  TODO
 
-    y *= .8;// whole scale =======================
+    y *= 1.;// whole scale =======================
+    y += sin(iTime) * 0.01; // shaking
 
     return y;
 }
@@ -198,45 +181,26 @@ void main()
     // prepare uv for st **********************************
     uv *= 2.0; // -1. ~ 1.
     uv.y += iResolution.y/iResolution.x;// origin point on (0.5 * x , 0.0)
-    uv.y -= 0.2;
+//    uv.y -= 0.2;
 
-    // uv.y -= wordOffset;// whole screen offset ======================
-    // uv *= 0.5;// 0 ~ 1
-    
+
     vec2 st = vec2(atan(uv.x,uv.y),length(uv));
     //st.x += PI;// 0 ~ 2PI on -y axis 
 
-
-    //domain for big distort  
-
-    vec2 uv1 = (fragCoord.xy - .5 * iResolution.xy)/iResolution.y; // uv -.5 ~ .5
-    uv1 *= 2.0; // -1. ~ 1.
-    uv1.y += 1.0;
-
-    vec2 st1 = vec2(atan(uv1.x,uv1.y),length(uv1));
-
-    st1.x = st1.x/(PI*2.0) + .5; // before st.x is -π ~ π after is  normalized 0.0 ~ 1.0
-
-
-    float d1  = wave_distort2(bLineTracking,st1,trk1Angle,bigDistort);
-    d1 += wave_distort2(bLineTracking,st1,trk2Angle,bigDistort);
-    d1 += wave_distort2(bLineTracking,st1,trk3Angle,bigDistort);
-
-    st.y += d1; //  stronger wave base on tracking angle
-    
-//    st.y += abs(st.x) ;
     // distort =========================================
     
     // float angle;
     // angle = 0.0;
     // angle = clamp(0.0,1.0,angle);//angle is 0. ~ 1, 1 is right direct , 0 is left direct 
     // angle = (sin(iTime) + 1.)*0.5;// pass parameter
+    
+    float scale = 1.- waveScale;
+    scale = clamp(0.001,.9,scale);// save handle
+    float y = wave_distort(bLineTracking,st,trk1Angle,scale);
+    y += wave_distort(bLineTracking,st,trk2Angle,scale);
+    y += wave_distort(bLineTracking,st,trk3Angle,scale);
 
-    float y = wave_distort(bLineTracking,st,trk1Angle);
-    y += wave_distort(bLineTracking,st,trk2Angle);
-    y += wave_distort(bLineTracking,st,trk3Angle);
-
-
+    
     vec3 col;
 
 
