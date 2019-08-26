@@ -100,7 +100,6 @@ protected:
     GLint bLineRippleLoc;
     GLint bLineTrackingLoc;
     
-    GLint bigDistortLoc;
     GLint lineNumLoc;
     GLint lineWidthLoc;
     GLint lineOffsetLoc;

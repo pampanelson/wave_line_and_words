@@ -44,7 +44,6 @@ uniform float trk2Power;
 uniform float trk3Angle;
 uniform float trk3Power;
 
-uniform float bigDistort; // 0.0 ~ 1.0
                                                         
                                                         
 float PI = 3.1415926535;

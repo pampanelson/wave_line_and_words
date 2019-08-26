@@ -165,7 +165,6 @@ FFResult AddSubtract::InitGL(const FFGLViewportStruct *vp)
     lineMaRippleSizeLoc = m_shader.FindUniform("lineMaRippleSize");
     lineMaRippleSpeedLoc = m_shader.FindUniform("lineMaRippleSpeed");
     
-    bigDistortLoc = m_shader.FindUniform("bigDistort");
     
     trk1AngleLoc = m_shader.FindUniform("trk1Angle");
     trk1PowerLoc = m_shader.FindUniform("trk1Power");
@@ -251,7 +250,6 @@ FFResult AddSubtract::ProcessOpenGL(ProcessOpenGLStruct *pGL)
     glUniform1f(lineMaRippleSizeLoc,lineMaRippleSize);
     glUniform1f(lineMaRippleSpeedLoc,lineMaRippleSpeed);
     
-    glUniform1f(bigDistortLoc, bigDistort);
     
     
     glUniform1f(trk1AngleLoc,trk1Angle);
