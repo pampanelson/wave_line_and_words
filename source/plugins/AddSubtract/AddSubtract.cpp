@@ -25,6 +25,13 @@
 #define FFPARAM_trk1Angle     (7)
 #define FFPARAM_trk1Power     (8)
 
+#define FFPARAM_trk2Angle     (9)
+#define FFPARAM_trk2Power     (10)
+
+#define FFPARAM_trk3Angle     (11)
+#define FFPARAM_trk3Power     (12)
+
+#define FFPARAM_waveScale   (13)
 
 
 
@@ -79,7 +86,8 @@ AddSubtract::AddSubtract()
     wordWordSpacingRatio = 0.1;
     wordOffset = 2.;
     
-    
+    waveScale = 0.0;
+
 
     
 
@@ -93,8 +101,19 @@ AddSubtract::AddSubtract()
     SetParamInfo(FFPARAM_wordOffset,"word offset",FF_TYPE_STANDARD,wordOffset / 20.0f);
     
     
+
+    SetParamInfo(FFPARAM_waveScale,"wave scale",FF_TYPE_STANDARD,waveScale);
+    
     SetParamInfo(FFPARAM_trk1Angle,"trk 1 angle",FF_TYPE_STANDARD,trk1Angle);
     SetParamInfo(FFPARAM_trk1Power,"trk 1 power",FF_TYPE_STANDARD,trk1Power);
+    
+    SetParamInfo(FFPARAM_trk2Angle,"trk 2 angle",FF_TYPE_STANDARD,trk2Angle);
+    SetParamInfo(FFPARAM_trk2Power,"trk 2 power",FF_TYPE_STANDARD,trk2Power);
+    
+    SetParamInfo(FFPARAM_trk3Angle,"trk 3 angle",FF_TYPE_STANDARD,trk3Angle);
+    SetParamInfo(FFPARAM_trk3Power,"trk 3 power",FF_TYPE_STANDARD,trk3Power);
+    
+
 }
 
 AddSubtract::~AddSubtract()
@@ -139,7 +158,15 @@ FFResult AddSubtract::InitGL(const FFGLViewportStruct *vp)
     trk1PowerLoc = m_shader.FindUniform("trk1Power");
     
     
+    trk2AngleLoc = m_shader.FindUniform("trk2Angle");
+    trk2PowerLoc = m_shader.FindUniform("trk2Power");
     
+    
+    trk3AngleLoc = m_shader.FindUniform("trk3Angle");
+    trk3PowerLoc = m_shader.FindUniform("trk3Power");
+    
+    
+    waveScaleLoc = m_shader.FindUniform("waveScale");
     
     
 	//the 0 means that the 'inputTexture' in
@@ -211,10 +238,20 @@ FFResult AddSubtract::ProcessOpenGL(ProcessOpenGLStruct *pGL)
     glUniform1f(wordOffsetLoc,wordOffset);
     
     
+    
     glUniform1f(trk1AngleLoc,trk1Angle);
     glUniform1f(trk1PowerLoc,trk1Power);
-
     
+    
+    glUniform1f(trk2AngleLoc,trk2Angle);
+    glUniform1f(trk2PowerLoc,trk2Power);
+    
+    
+    glUniform1f(trk3AngleLoc,trk3Angle);
+    glUniform1f(trk3PowerLoc,trk3Power);
+    
+    
+    glUniform1f(waveScaleLoc, waveScale);
 
     
     
@@ -314,12 +351,33 @@ float AddSubtract::GetFloatParameter(unsigned int dwIndex)
             return retValue;
             
             
+        case FFPARAM_waveScale:
+            retValue = waveScale;
+            return retValue;
+            
         case FFPARAM_trk1Angle:
             retValue = trk1Angle;
             return retValue;
         case FFPARAM_trk1Power:
             retValue = trk1Power;
             return retValue;
+            
+            
+        case FFPARAM_trk2Angle:
+            retValue = trk2Angle;
+            return retValue;
+        case FFPARAM_trk2Power:
+            retValue = trk2Power;
+            return retValue;
+            
+            
+        case FFPARAM_trk3Angle:
+            retValue = trk3Angle;
+            return retValue;
+        case FFPARAM_trk3Power:
+            retValue = trk3Power;
+            return retValue;
+            
         default:
             return retValue;
     }
@@ -338,43 +396,63 @@ FFResult AddSubtract::SetFloatParameter(unsigned int dwIndex, float value)
             
             
 
-    case FFPARAM_bWordRotate:
-        bWordRotate = value > 0.5;
-        break;
-    case FFPARAM_bWordTracking:
-        bWordTracking = value > 0.5;
-        break;
+        case FFPARAM_bWordRotate:
+            bWordRotate = value > 0.5;
+            break;
+        case FFPARAM_bWordTracking:
+            bWordTracking = value > 0.5;
+            break;
+                
+                
+        case FFPARAM_wordRotateSpeed:
+            wordRotateSpeed = value * 10.0;
+            break;
+        
+        case FFPARAM_wordLineNum :
+            wordLineNum = value * 300.0;
+            break;
+        case FFPARAM_wordLineSpacingRatio:
+            wordLineSpacingRatio = value;
+            break;
+        case FFPARAM_wordWordSpacingRatio:
+            wordWordSpacingRatio = value;
+            break;
+        case FFPARAM_wordOffset:
+            wordOffset = value * 20.0;
+            break;
+            
+        
+        case FFPARAM_waveScale:
+            waveScale = value;
+            break;
+            
+        case FFPARAM_trk1Angle:
+            trk1Angle = value;
+            break;
+        case FFPARAM_trk1Power:
+            trk1Power = value;
+            break;
+            
+        case FFPARAM_trk2Angle:
+            trk2Angle = value;
+            break;
+        case FFPARAM_trk2Power:
+            trk2Power = value;
+            break;
             
             
-    case FFPARAM_wordRotateSpeed:
-        wordRotateSpeed = value * 10.0;
-        break;
-    
-    case FFPARAM_wordLineNum :
-        wordLineNum = value * 300.0;
-        break;
-    case FFPARAM_wordLineSpacingRatio:
-        wordLineSpacingRatio = value;
-        break;
-    case FFPARAM_wordWordSpacingRatio:
-        wordWordSpacingRatio = value;
-        break;
-    case FFPARAM_wordOffset:
-        wordOffset = value * 20.0;
-        break;
-        
-        
-    case FFPARAM_trk1Angle:
-        trk1Angle = value;
-        break;
-    case FFPARAM_trk1Power:
-        trk1Power = value;
-        break;
-        
+        case FFPARAM_trk3Angle:
+            trk3Angle = value;
+            break;
+        case FFPARAM_trk3Power:
+            trk3Power = value;
+            break;
+            
             
 
-	default:
-		return FF_FAIL;
+
+        default:
+            return FF_FAIL;
 	}
 
 	return FF_SUCCESS;

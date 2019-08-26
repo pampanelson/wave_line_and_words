@@ -51,8 +51,16 @@ protected:
     float wordOffset;
     float wordRotateSpeed;
     
+    float waveScale;
+
     float trk1Angle;
     float trk1Power;
+    
+    float trk2Angle;
+    float trk2Power;
+    
+    float trk3Angle;
+    float trk3Power;
     
 
     
@@ -82,9 +90,14 @@ protected:
     GLint wordOffsetLoc;
     
     
+    GLint waveScaleLoc;
+    
     GLint trk1AngleLoc;
     GLint trk1PowerLoc;
-    
+    GLint trk2AngleLoc;
+    GLint trk2PowerLoc;
+    GLint trk3AngleLoc;
+    GLint trk3PowerLoc;
     
     FFGLShader m_shader;
     GLint m_inputTextureLocation;

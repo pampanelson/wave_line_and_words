@@ -30,9 +30,18 @@ uniform float wordLineSpacingRatio;
 uniform float wordWordSpacingRatio;
 uniform float wordOffset;
 
+uniform float waveScale;
+
+
 uniform float trk1Angle;
 uniform float trk1Power;
     
+uniform float trk2Angle;
+uniform float trk2Power;
+
+uniform float trk3Angle;
+uniform float trk3Power;
+
 
 
 float PI = 3.1415926535;
@@ -128,7 +137,7 @@ vec3 word_wave(vec2 st,float rotateSpeed,float distort,float colNumber,float off
 }
 
 
-float wave_distort(float use,vec2 st,float angle){
+float wave_distort(float use,vec2 st,float angle,float scale){
     // distort =========================================
 
     
@@ -142,12 +151,13 @@ float wave_distort(float use,vec2 st,float angle){
     //x = -x;
 
     // =+++++++++++++ IMPORTANT ++++++++++++++++++++++++++++
+    // not use distort or distort angle is 0.0 which is default value
     if(use < 0.5){
-        
+         
        x += 1.; // this value makes no distort ================ . TODO 
     }
     else{
-		x += -.0; // 0.0 is up direct , -0.5 is right direct , 0.5 is left direct
+        x += -.0; // 0.0 is up direct , -0.5 is right direct , 0.5 is left direct
         x += 0.5 - angle;// angle is 0. ~ 1, 1 is right direct , 0 is left direct 
 
     }
@@ -164,16 +174,17 @@ float wave_distort(float use,vec2 st,float angle){
     y = smax(y,y1,0.9);
     y = smax(y,y2,0.8);
     // y = smax(y,wave1(x*0.01),-0.9);
-    float peak3 = 0.1;//
+    float peak3 = 0.15;//
     float narrow3 = 4.0;//*sin(iTime*10.);
     float y3 = wave3(x+0.2,peak3,narrow3);
 
-    y = smax(y,y3,0.8);
-    y = smax(y,0.2,0.9);
+    y = smax(y,y3,0.5);// 0.1 is shaper wave , ============  TODO
+    y = smax(y,0.2,scale);// scale is 0.01 ~ 0.9 , lower is bigger ========  TODO
 
-    y *= 1.2;// whole scale =======================
+    y *= 1.;// whole scale =======================
+    y += sin(iTime) * 0.01; // shaking
 
-	return y;
+    return y;
 }
 
 
@@ -212,7 +223,11 @@ void main()
     // angle = clamp(0.0,1.0,angle);//angle is 0. ~ 1, 1 is right direct , 0 is left direct 
    	// angle = (sin(iTime) + 1.)*0.5;// pass parameter
 
-    float y = wave_distort(bWordTracking,st,trk1Angle);
+    float scale = 1.- waveScale;
+    scale = clamp(0.001,.9,scale);// save handle
+    float y = wave_distort(bWordTracking,st,trk1Angle,scale);
+    y += wave_distort(bWordTracking,st,trk2Angle,scale);
+    y += wave_distort(bWordTracking,st,trk3Angle,scale);
     
     
     vec3 col;
