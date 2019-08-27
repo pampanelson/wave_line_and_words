@@ -125,10 +125,11 @@ vec3 word_wave(vec2 st,float rotateSpeed,float distort,float colNumber,float off
     localPolar.x *= 1.0/(1.0 - wsratio);
     localPolar.y *= 1.0/(1.0 - lsratio);
 
-    
+    // convert back to original left upper 0,0
+    localPolar.y = 1. - localPolar.y;
     col = texture2D(inputTexture,localPolar).xyz;
 
-    if(localPolar.x > 1.0 || localPolar.y > 1.0){
+    if(localPolar.x > 1.0 || localPolar.y > 1.0 || localPolar.x < 0.0 || localPolar.y < 0.0){
     	col *= 0.0;
     }
     
@@ -203,8 +204,8 @@ void main()
 
 
     vec2 uv = (fragCoord.xy - .5 * iResolution.xy)/iResolution.x; // uv -.5 ~ .5  , x axis is scale t0 1.
-
-    
+    vec2 uv1 = gl_FragCoord.xy / iResolution.xy;
+    vec2 uv2 = fragCoord.xy / iResolution.xy;
     // prepare uv for st **********************************
     uv *= 2.0; // -1. ~ 1.
     uv.y += iResolution.y/iResolution.x;// origin point on (0.5 * x , 0.0)
@@ -223,17 +224,17 @@ void main()
     // angle = clamp(0.0,1.0,angle);//angle is 0. ~ 1, 1 is right direct , 0 is left direct 
    	// angle = (sin(iTime) + 1.)*0.5;// pass parameter
 
-    float scale = 1.- waveScale;
-    scale = clamp(0.001,.9,scale);// save handle
-    float y = wave_distort(bWordTracking,st,trk1Angle,scale);
-    y += wave_distort(bWordTracking,st,trk2Angle,scale);
-    y += wave_distort(bWordTracking,st,trk3Angle,scale);
+     float scale = 1.- waveScale;
+     scale = clamp(0.001,.9,scale);// save handle
+     float y = wave_distort(bWordTracking,st,trk1Angle,scale);
+     y += wave_distort(bWordTracking,st,trk2Angle,scale);
+     y += wave_distort(bWordTracking,st,trk3Angle,scale);
     
     
-    vec3 col;
-	// vec3 word_wave(vec2 st,float rotateSpeed,float distort,float colNumber,float offsetY,float lsratio,float wsratio){
+     vec3 col;
+     // vec3 word_wave(vec2 st,float rotateSpeed,float distort,float colNumber,float offsetY,float lsratio,float wsratio){
 
-    col = word_wave(st,wordRotateSpeed,y,wordLineNum,wordOffset,wordLineSpacingRatio,wordWordSpacingRatio);
+     col = word_wave(st,wordRotateSpeed,y,wordLineNum,wordOffset,wordLineSpacingRatio,wordWordSpacingRatio);
     
     
     // debug distort wave =============
@@ -246,6 +247,16 @@ void main()
 
 //    col = vec3(sin(iTime));
     fragColor = vec4(col,1.0);
+    
+    
+    // for test default st and changed st convertion
+//    uv2.y = 1. - uv2.y;
+//    fragColor = vec4(uv2.x,uv2.y,0.0,.5);
+    
+//    fragColor += vec4(texture2D(inputTexture,uv2).xyz,0.5);
+    
+    
+    
     
     gl_FragColor = fragColor;
 }
