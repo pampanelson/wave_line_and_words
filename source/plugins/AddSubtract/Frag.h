@@ -137,13 +137,19 @@ vec3 word_wave(vec2 st,float rotateSpeed,float distort,float colNumber,float off
     
     else{
         
-        // convert back to original left upper 0,0, at end of all =====================  IMPORTANT ==================
         
         // try to get part of texture but whole in a word square
-        localPolar.y = index.y * 1./colNumber + localPolar.y/colNumber;
-        //    localPolar.x = localPolar.x/colNumber + index.x * 1./colNumber;
+        // ratio of part of texture is fixed, column line number is changing , need get module of fixed word column amount predefined
+        // devided texture into 4 parts for example
         
+        float indexY = mod(index.y,4.0);
+        localPolar.y = indexY * 1./4.0 + localPolar.y / 4.0;
 
+
+        
+        
+        
+        // convert back to original left upper 0,0, at end of all =====================  IMPORTANT ==================
         localPolar.y = 1. - localPolar.y;
         
         col = texture2D(inputTexture,localPolar).xyz;
