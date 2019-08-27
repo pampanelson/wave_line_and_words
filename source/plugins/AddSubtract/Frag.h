@@ -129,19 +129,28 @@ vec3 word_wave(vec2 st,float rotateSpeed,float distort,float colNumber,float off
 
 
     
-    // try to get part of texture but whole in a word square
-    localPolar.y = index.y * 1./colNumber + localPolar.y/colNumber;
-    
-    
-    // convert back to original left upper 0,0, at end of all
-    localPolar.y = 1. - localPolar.y;
-    
-    col = texture2D(inputTexture,localPolar).xyz;
 
-    if(localPolar.x > 1.0 || localPolar.y > 1.0 || localPolar.x < 0.0 || localPolar.y < 0.0){
+
+    if(localPolar.x > 1.0 || localPolar.y > 1.0 || localPolar.y < 0.0 || localPolar.x < 0.0){
     	col *= 0.0;
     }
     
+    else{
+        
+        // convert back to original left upper 0,0, at end of all =====================  IMPORTANT ==================
+        
+        // try to get part of texture but whole in a word square
+        localPolar.y = index.y * 1./colNumber + localPolar.y/colNumber;
+        //    localPolar.x = localPolar.x/colNumber + index.x * 1./colNumber;
+        
+
+        localPolar.y = 1. - localPolar.y;
+        
+        col = texture2D(inputTexture,localPolar).xyz;
+
+    }
+    
+
     return col;
 
 }
