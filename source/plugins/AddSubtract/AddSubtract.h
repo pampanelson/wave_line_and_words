@@ -46,6 +46,7 @@ protected:
     
 
     float wordLineNum;
+    float wordWordNum;
     float wordLineSpacingRatio;
     float wordWordSpacingRatio;
     float wordOffset;
@@ -85,6 +86,7 @@ protected:
     
     GLint wordRotateSpeedLoc;
     GLint wordLineNumLoc;
+    GLint wordWordNumLoc;
     GLint wordLineSpacingRatioLoc;
     GLint wordWordspacingRatioLoc;
     GLint wordOffsetLoc;

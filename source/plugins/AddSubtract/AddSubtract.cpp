@@ -33,6 +33,7 @@
 
 #define FFPARAM_waveScale   (13)
 
+#define FFPARAM_wordWordNum       (14)
 
 
 
@@ -82,6 +83,7 @@ AddSubtract::AddSubtract()
     
     wordRotateSpeed = 2.0;
     wordLineNum = 20.;
+    wordWordNum = 10.;
     wordLineSpacingRatio = 0.1;
     wordWordSpacingRatio = 0.1;
     wordOffset = 2.;
@@ -96,6 +98,7 @@ AddSubtract::AddSubtract()
 
     SetParamInfo(FFPARAM_wordRotateSpeed ,"word rotate speed",FF_TYPE_STANDARD,wordRotateSpeed / 10.0f);
     SetParamInfo(FFPARAM_wordLineNum ,"word line number",FF_TYPE_STANDARD,wordLineNum / 300.0f);
+    SetParamInfo(FFPARAM_wordWordNum ,"word word number",FF_TYPE_STANDARD,wordWordNum / 300.0f);
     SetParamInfo(FFPARAM_wordLineSpacingRatio,"word line spacing",FF_TYPE_STANDARD,wordLineSpacingRatio);
     SetParamInfo(FFPARAM_wordWordSpacingRatio,"word word spacing",FF_TYPE_STANDARD,wordWordSpacingRatio);
     SetParamInfo(FFPARAM_wordOffset,"word offset",FF_TYPE_STANDARD,wordOffset / 20.0f);
@@ -149,6 +152,7 @@ FFResult AddSubtract::InitGL(const FFGLViewportStruct *vp)
     
     wordRotateSpeedLoc = m_shader.FindUniform("wordRotateSpeed");
     wordLineNumLoc = m_shader.FindUniform("wordLineNum");
+    wordWordNumLoc = m_shader.FindUniform("wordWordNum");
     wordLineSpacingRatioLoc = m_shader.FindUniform("wordLineSpacingRatio");
     wordWordspacingRatioLoc = m_shader.FindUniform("wordWordSpacingRatio");
     wordOffsetLoc = m_shader.FindUniform("wordOffset");
@@ -233,6 +237,7 @@ FFResult AddSubtract::ProcessOpenGL(ProcessOpenGLStruct *pGL)
     
     glUniform1f(wordRotateSpeedLoc, wordRotateSpeed);
     glUniform1f(wordLineNumLoc,wordLineNum);
+    glUniform1f(wordWordNumLoc,wordWordNum);
     glUniform1f(wordLineSpacingRatioLoc,wordLineSpacingRatio);
     glUniform1f(wordWordspacingRatioLoc,wordWordSpacingRatio);
     glUniform1f(wordOffsetLoc,wordOffset);
@@ -340,6 +345,10 @@ float AddSubtract::GetFloatParameter(unsigned int dwIndex)
         case FFPARAM_wordLineNum :
             retValue = wordLineNum / 300.0;
             return retValue;
+        case FFPARAM_wordWordNum :
+            retValue = wordWordNum / 300.0;
+            return retValue;
+            
         case FFPARAM_wordLineSpacingRatio:
             retValue = wordLineSpacingRatio;
             return retValue;
@@ -410,6 +419,9 @@ FFResult AddSubtract::SetFloatParameter(unsigned int dwIndex, float value)
         
         case FFPARAM_wordLineNum :
             wordLineNum = value * 300.0;
+            break;
+        case FFPARAM_wordWordNum :
+            wordWordNum = value * 300.0;
             break;
         case FFPARAM_wordLineSpacingRatio:
             wordLineSpacingRatio = value;
