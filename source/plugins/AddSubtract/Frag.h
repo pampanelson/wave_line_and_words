@@ -33,15 +33,10 @@ uniform float wordOffset;
 
 uniform float waveScale;
 
+uniform float wordColDivid;
+uniform float wordWordDivid;
+uniform float trackingData[12]; // 12 size()
 
-uniform float trk1Angle;
-uniform float trk1Power;
-
-uniform float trk2Angle;
-uniform float trk2Power;
-
-uniform float trk3Angle;
-uniform float trk3Power;
 
 
 
@@ -256,15 +251,15 @@ void main()
     
     float scale = 1.- waveScale;
     scale = clamp(0.001,.9,scale);// save handle
-    float y = wave_distort(bWordTracking,st,trk1Angle,scale);
-    y += wave_distort(bWordTracking,st,trk2Angle,scale);
-    y += wave_distort(bWordTracking,st,trk3Angle,scale);
-    
+//    float y = wave_distort(bWordTracking,st,trk1Angle,scale);
+//    y += wave_distort(bWordTracking,st,trk2Angle,scale);
+//    y += wave_distort(bWordTracking,st,trk3Angle,scale);
+//
     
     vec3 col;
-    // vec3 word_wave(vec2 st,float rotateSpeed,float distort,float colNumber,float offsetY,float lsratio,float wsratio){
+    // vec3 word_wave(vec2 st,float rotateSpeed,float distort,float colNZumber,float offsetY,float lsratio,float wsratio){
     
-    col = word_wave(st,wordRotateSpeed,y,wordLineNum,wordOffset,wordLineSpacingRatio,wordWordSpacingRatio);
+//    col = word_wave(st,wordRotateSpeed,y,wordLineNum,wordOffset,wordLineSpacingRatio,wordWordSpacingRatio);
     
     
     // debug distort wave =============
@@ -287,6 +282,12 @@ void main()
     
     
     
+    // debug pass float from text into shader
+//    if(gl_FragCoord.x < wordWordDivid && gl_FragCoord.y < wordColDivid){
+//        fragColor = vec4(1.0);
+//
+//    }
+//    
     
     gl_FragColor = fragColor;
 }

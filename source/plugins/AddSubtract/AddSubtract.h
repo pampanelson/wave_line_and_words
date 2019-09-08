@@ -4,6 +4,53 @@
 #include "FFGLPluginSDK.h"
 #include <string>
 
+
+
+#include <iostream>
+#include <limits>
+#include <vector>
+#include <sstream>
+
+// split string combine with "," or other mark seperator as vector
+std::vector<std::string> MySplitS1(std::string input){
+    std::vector<std::string> result;
+    if(input.size()>0){
+        
+        std::istringstream iss(input);
+        for(std::string s; iss >> s; )
+            result.push_back(s);
+    }
+    
+    return result;
+}
+
+
+
+std::vector<float> MyConvertStingToFloatVector(std::string input){
+    
+    std::vector<float> vect;
+    
+    std::stringstream ss(input);
+    
+    float i;
+    
+    while (ss >> i)
+    {
+        vect.push_back(i);
+        
+        if (ss.peek() == ',')
+            ss.ignore();
+    }
+    
+    
+    
+    return vect;
+}
+
+
+
+
+
 class AddSubtract : public CFreeFrameGLPlugin
 {
 public:
@@ -14,6 +61,10 @@ public:
 	// FreeFrame plugin methods
 	///////////////////////////////////////////////////
 	
+    FFResult SetTextParameter(unsigned int dwIndex, const char *value) override;
+    char* GetTextParameter(unsigned int index) override;
+
+    
 	FFResult SetFloatParameter(unsigned int dwIndex, float value) override;		
 	float GetFloatParameter(unsigned int index) override;					
 	FFResult ProcessOpenGL(ProcessOpenGLStruct* pGL) override;
@@ -53,17 +104,18 @@ protected:
     float wordRotateSpeed;
     
     float waveScale;
-
-    float trk1Angle;
-    float trk1Power;
     
-    float trk2Angle;
-    float trk2Power;
+    // control wave shape and change rate
+    float waveDelta;
+    float waveMax;
     
-    float trk3Angle;
-    float trk3Power;
+    std::string rawOscTextData;
+    int kTrackingDataSize = 12;
+    GLfloat trackingData[12];
     
-
+    
+    std::string wordColDivid = "0";
+    std::string wordWordDivid = "0"; 
     
 //case FFPARAM_wordRotateSpeed:
 //    retValue = wordRotateSpeed / 10.0;
@@ -84,6 +136,8 @@ protected:
     GLint bWordRotateLoc;
     GLint bWordTrackingLoc;
     
+
+    
     GLint wordRotateSpeedLoc;
     GLint wordLineNumLoc;
     GLint wordWordNumLoc;
@@ -91,15 +145,13 @@ protected:
     GLint wordWordspacingRatioLoc;
     GLint wordOffsetLoc;
     
-    
+    GLint trackingDataLoc;
+
+
     GLint waveScaleLoc;
     
-    GLint trk1AngleLoc;
-    GLint trk1PowerLoc;
-    GLint trk2AngleLoc;
-    GLint trk2PowerLoc;
-    GLint trk3AngleLoc;
-    GLint trk3PowerLoc;
+    GLint wordWordDividLoc;
+    GLint wordColDividLoc;
     
     FFGLShader m_shader;
     GLint m_inputTextureLocation;

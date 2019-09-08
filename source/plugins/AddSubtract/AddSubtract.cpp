@@ -6,6 +6,9 @@
 #include "Frag.h"
 #include "../../lib/ffgl/utilities/utilities.h"
 
+#include <algorithm>
+
+
 //#define FFPARAM_SwitchTex   (0)
 //#define FFPARAM_Float1      (1)
 
@@ -21,21 +24,15 @@
 #define FFPARAM_wordWordSpacingRatio      (5)
 #define FFPARAM_wordOffset        (6)
 
+#define FFPARAM_waveScale   (7)
 
-#define FFPARAM_trk1Angle     (7)
-#define FFPARAM_trk1Power     (8)
+#define FFPARAM_wordWordNum       (8)
 
-#define FFPARAM_trk2Angle     (9)
-#define FFPARAM_trk2Power     (10)
-
-#define FFPARAM_trk3Angle     (11)
-#define FFPARAM_trk3Power     (12)
-
-#define FFPARAM_waveScale   (13)
-
-#define FFPARAM_wordWordNum       (14)
+#define FFPARAM_word_col_divid     (9)
+#define FFPARAM_word_word_divid     (10)
 
 
+#define FFPARAM_text_data     (11)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Plugin information
@@ -103,18 +100,13 @@ AddSubtract::AddSubtract()
     SetParamInfo(FFPARAM_wordWordSpacingRatio,"word word spacing",FF_TYPE_STANDARD,wordWordSpacingRatio);
     SetParamInfo(FFPARAM_wordOffset,"word offset",FF_TYPE_STANDARD,wordOffset / 20.0f);
     
+    rawOscTextData = "hello";
+    SetParamInfo(FFPARAM_text_data, "osc text data", FF_TYPE_TEXT, rawOscTextData.c_str());
     
 
-    SetParamInfo(FFPARAM_waveScale,"wave scale",FF_TYPE_STANDARD,waveScale);
-    
-    SetParamInfo(FFPARAM_trk1Angle,"trk 1 angle",FF_TYPE_STANDARD,trk1Angle);
-    SetParamInfo(FFPARAM_trk1Power,"trk 1 power",FF_TYPE_STANDARD,trk1Power);
-    
-    SetParamInfo(FFPARAM_trk2Angle,"trk 2 angle",FF_TYPE_STANDARD,trk2Angle);
-    SetParamInfo(FFPARAM_trk2Power,"trk 2 power",FF_TYPE_STANDARD,trk2Power);
-    
-    SetParamInfo(FFPARAM_trk3Angle,"trk 3 angle",FF_TYPE_STANDARD,trk3Angle);
-    SetParamInfo(FFPARAM_trk3Power,"trk 3 power",FF_TYPE_STANDARD,trk3Power);
+    SetParamInfo(FFPARAM_word_col_divid, "column divid", FF_TYPE_TEXT, wordColDivid.c_str());
+
+    SetParamInfo(FFPARAM_word_word_divid, "word divid", FF_TYPE_TEXT, wordWordDivid.c_str());
     
 
 }
@@ -157,21 +149,14 @@ FFResult AddSubtract::InitGL(const FFGLViewportStruct *vp)
     wordWordspacingRatioLoc = m_shader.FindUniform("wordWordSpacingRatio");
     wordOffsetLoc = m_shader.FindUniform("wordOffset");
     
-    
-    trk1AngleLoc = m_shader.FindUniform("trk1Angle");
-    trk1PowerLoc = m_shader.FindUniform("trk1Power");
-    
-    
-    trk2AngleLoc = m_shader.FindUniform("trk2Angle");
-    trk2PowerLoc = m_shader.FindUniform("trk2Power");
-    
-    
-    trk3AngleLoc = m_shader.FindUniform("trk3Angle");
-    trk3PowerLoc = m_shader.FindUniform("trk3Power");
-    
-    
+
     waveScaleLoc = m_shader.FindUniform("waveScale");
     
+    
+    trackingDataLoc = m_shader.FindUniform("trackingData");
+
+    wordWordDividLoc = m_shader.FindUniform("wordWordDivid");
+    wordColDividLoc = m_shader.FindUniform("wordColDivid");
     
 	//the 0 means that the 'inputTexture' in
 	//the shader will use the texture bound to GL texture unit 0
@@ -207,6 +192,36 @@ FFResult AddSubtract::ProcessOpenGL(ProcessOpenGLStruct *pGL)
     ticks = getTicks();
     
 
+    std::vector<float> oscDataInFloatVec = MyConvertStingToFloatVector(rawOscTextData);
+    
+    
+//    
+//    for (int i = 0; i < kTrackingDataSize; i++) {
+//        //        data[i] = 0.003 * float(i);
+//        float mark = oscDataInFloatVec[i];
+//        
+//        if (mark > 0.0) {
+//            trackingData[i] += waveDelta;
+//        }
+//        else{
+//            trackingData[i] -= waveDelta;
+//        }
+//        
+//        
+//        // clamp
+//        if (trackingData[i] < 0.0) {
+//            trackingData[i] = 0.0;
+//        }
+//        
+//        if(trackingData[i] > waveMax){
+//            trackingData[i] = waveMax;
+//        }
+//    }
+    
+    
+    
+    float colDividFloat = std::stod(wordColDivid);
+    float wordDividFloat = std::stod(wordWordDivid);
     
     
 	//activate our shader
@@ -243,22 +258,15 @@ FFResult AddSubtract::ProcessOpenGL(ProcessOpenGLStruct *pGL)
     glUniform1f(wordOffsetLoc,wordOffset);
     
     
-    
-    glUniform1f(trk1AngleLoc,trk1Angle);
-    glUniform1f(trk1PowerLoc,trk1Power);
-    
-    
-    glUniform1f(trk2AngleLoc,trk2Angle);
-    glUniform1f(trk2PowerLoc,trk2Power);
-    
-    
-    glUniform1f(trk3AngleLoc,trk3Angle);
-    glUniform1f(trk3PowerLoc,trk3Power);
+    glUniform1fv(trackingDataLoc,kTrackingDataSize,trackingData);
+
     
     
     glUniform1f(waveScaleLoc, waveScale);
 
+    glUniform1f(wordColDividLoc, colDividFloat);
     
+    glUniform1f(wordWordDividLoc, wordDividFloat);
     
 
     if(bWordRotate){
@@ -364,28 +372,7 @@ float AddSubtract::GetFloatParameter(unsigned int dwIndex)
             retValue = waveScale;
             return retValue;
             
-        case FFPARAM_trk1Angle:
-            retValue = trk1Angle;
-            return retValue;
-        case FFPARAM_trk1Power:
-            retValue = trk1Power;
-            return retValue;
-            
-            
-        case FFPARAM_trk2Angle:
-            retValue = trk2Angle;
-            return retValue;
-        case FFPARAM_trk2Power:
-            retValue = trk2Power;
-            return retValue;
-            
-            
-        case FFPARAM_trk3Angle:
-            retValue = trk3Angle;
-            return retValue;
-        case FFPARAM_trk3Power:
-            retValue = trk3Power;
-            return retValue;
+
             
         default:
             return retValue;
@@ -438,29 +425,7 @@ FFResult AddSubtract::SetFloatParameter(unsigned int dwIndex, float value)
             waveScale = value;
             break;
             
-        case FFPARAM_trk1Angle:
-            trk1Angle = value;
-            break;
-        case FFPARAM_trk1Power:
-            trk1Power = value;
-            break;
-            
-        case FFPARAM_trk2Angle:
-            trk2Angle = value;
-            break;
-        case FFPARAM_trk2Power:
-            trk2Power = value;
-            break;
-            
-            
-        case FFPARAM_trk3Angle:
-            trk3Angle = value;
-            break;
-        case FFPARAM_trk3Power:
-            trk3Power = value;
-            break;
-            
-            
+
 
 
         default:
@@ -468,4 +433,51 @@ FFResult AddSubtract::SetFloatParameter(unsigned int dwIndex, float value)
 	}
 
 	return FF_SUCCESS;
+}
+
+
+char* AddSubtract::GetTextParameter(unsigned int dwIndex)
+{
+    
+    char* retValue;
+    switch (dwIndex) {
+        case FFPARAM_text_data:
+            retValue = const_cast<char*>(rawOscTextData.c_str());
+            break;
+            
+        case FFPARAM_word_col_divid:
+            retValue = const_cast<char*>(wordColDivid.c_str());
+            break;
+        case FFPARAM_word_word_divid:
+            retValue = const_cast<char*>(wordWordDivid.c_str());
+            break;
+            
+        default:
+            return (char *)FF_FAIL;
+    }
+    return retValue;
+}
+
+FFResult AddSubtract::SetTextParameter(unsigned int dwIndex, const char *value){
+    switch (dwIndex)
+    {
+            
+        case FFPARAM_text_data:
+            rawOscTextData = value;
+            break;
+            
+            
+        case FFPARAM_word_col_divid:
+            wordColDivid = value;
+            break;
+            
+        case FFPARAM_word_word_divid:
+            wordWordDivid = value;
+            break;
+            
+        default:
+            return FF_FAIL;
+    }
+    
+    return FF_SUCCESS;
 }
