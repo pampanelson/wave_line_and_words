@@ -38,11 +38,12 @@ uniform float wordWordDivid;
 uniform float trackingData[12]; // 12 size()
 
 
-
-
+int kTrackingDataSize = 12;
+float kTrackingDataSizeF = 12.0;
 float PI = 3.1415926535;
 float aPI = acos(-1.);
 
+float rand(float n){return fract(sin(n) * 43758.5453123);}
 
 // Polynomial smooth min (for copying and pasting into your shaders)
 float smin(float a, float b, float k) {
@@ -140,11 +141,11 @@ vec3 word_wave(vec2 st,float rotateSpeed,float distort,float colNumber,float off
         // -=--------------------------------------------------- =====================  IMPORTANT ==================
         // how many column and line a texture of words
         
-        float yDivid = 100.0;
+        float yDivid = wordColDivid;// passed uniform float
         float indexY = mod(index.y,yDivid);
         localPolar.y = indexY * 1./yDivid + localPolar.y / yDivid;
         
-        float xDivid = 160.0;
+        float xDivid = wordWordDivid;// passed uniform float
         float indexX = mod(index.x,xDivid);
         localPolar.x = indexX * 1./xDivid + localPolar.x / xDivid;
         
@@ -152,7 +153,7 @@ vec3 word_wave(vec2 st,float rotateSpeed,float distort,float colNumber,float off
         // convert back to original left upper 0,0, at end of all =====================  IMPORTANT ==================
         localPolar.y = 1. - localPolar.y;
         // maybe need flip x axis also 
-        localPolar.x = 1. - localPolar.x;
+//        localPolar.x = 1. - localPolar.x;
         col = texture2D(inputTexture,localPolar).xyz;
         
     }
@@ -166,7 +167,7 @@ vec3 word_wave(vec2 st,float rotateSpeed,float distort,float colNumber,float off
 float wave_distort(float use,vec2 st,float angle,float scale){
     // distort =========================================
     
-    
+    float fixScale = 0.5;
     vec2 st2 = st;
     //st.x = st.x/(PI*2.0) + .5; // before st.x is -π ~ π after is  normalized 0.0 ~ 1.0
     
@@ -190,11 +191,15 @@ float wave_distort(float use,vec2 st,float angle,float scale){
     
     // float x = uv.x;
     float y = 0.0;
-    float a1 = -.2*sin(iTime*5.0);
+    // float a1 = -.2*sin(iTime*5.0);
+    // a1 = 0.8; // use this one to control wave shape, 0.05 is small 0.8 is biggest
+    float a1 = scale;
+    a1 += sin(iTime)*0.02;// add some dynamics
     float f1 = 12.5;
     float y1 = wave2(x,a1,f1);
     float a2 = 0.0;//
-    a2 = sin(iTime*10.)*0.1;
+    // a2 = sin(iTime*10.)*0.1;
+    a2 = 0.1;
     float f2 = 8.0; // power ===============================
     float y2 = wave2(x+0.1,a2,f2);
     y = smax(y,y1,0.9);
@@ -204,8 +209,8 @@ float wave_distort(float use,vec2 st,float angle,float scale){
     float narrow3 = 4.0;//*sin(iTime*10.);
     float y3 = wave3(x+0.2,peak3,narrow3);
     
-    y = smax(y,y3,0.5);// 0.1 is shaper wave , ============  TODO
-    y = smax(y,0.2,scale);// scale is 0.01 ~ 0.9 , lower is bigger ========  TODO
+    y = smax(y,y3,0.5);// 0.1 is sharper wave , ============  TODO
+    y = smax(y,0.2,fixScale);// scale is 0.01 ~ 0.9 , lower is bigger ========  TODO
     
     y *= 1.;// whole scale =======================
     y += sin(iTime) * 0.01; // shaking
@@ -249,17 +254,28 @@ void main()
     // angle = clamp(0.0,1.0,angle);//angle is 0. ~ 1, 1 is right direct , 0 is left direct
     // angle = (sin(iTime) + 1.)*0.5;// pass parameter
     
-    float scale = 1.- waveScale;
-    scale = clamp(0.001,.9,scale);// save handle
-//    float y = wave_distort(bWordTracking,st,trk1Angle,scale);
-//    y += wave_distort(bWordTracking,st,trk2Angle,scale);
-//    y += wave_distort(bWordTracking,st,trk3Angle,scale);
-//
+
+    float y = 0.0;
     
+    // y += wave_distort(bWordTracking,st,0.5,0.8);
+
+     for (int i = 0; i < kTrackingDataSize; i++)
+     {
+         // if(trackingData[i] > 0.0){
+             float angleIndex = 1.0/kTrackingDataSizeF * float(i);
+             angleIndex += 0.01 * rand(iTime)/kTrackingDataSizeF; // and some random offset 
+             float scale = clamp(0.001,1.9,trackingData[i]);
+             y += wave_distort(bWordTracking,st,angleIndex,scale);
+         // }
+
+     }
+    
+    
+
     vec3 col;
     // vec3 word_wave(vec2 st,float rotateSpeed,float distort,float colNZumber,float offsetY,float lsratio,float wsratio){
     
-//    col = word_wave(st,wordRotateSpeed,y,wordLineNum,wordOffset,wordLineSpacingRatio,wordWordSpacingRatio);
+    col = word_wave(st,wordRotateSpeed,y,wordLineNum,wordOffset,wordLineSpacingRatio,wordWordSpacingRatio);
     
     
     // debug distort wave =============
@@ -271,6 +287,19 @@ void main()
     // Output to screen
     
     //    col = vec3(sin(iTime));
+
+
+
+
+    // debug tracking data ---------------------------
+    
+    // uv.x *= 12.0;
+    
+    // int index = int(floor(uv.x));
+    // col = vec3(trackingData[index]);
+    
+
+
     fragColor = vec4(col,1.0);
     
     
@@ -289,8 +318,12 @@ void main()
 //    }
 //    
     
+    
+    
+
+    
     gl_FragColor = fragColor;
 }
-                                                        );
+);
 
 #endif /* Frag_h */

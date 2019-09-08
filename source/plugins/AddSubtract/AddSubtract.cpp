@@ -6,7 +6,6 @@
 #include "Frag.h"
 #include "../../lib/ffgl/utilities/utilities.h"
 
-#include <algorithm>
 
 
 //#define FFPARAM_SwitchTex   (0)
@@ -25,14 +24,16 @@
 #define FFPARAM_wordOffset        (6)
 
 #define FFPARAM_waveScale   (7)
+#define FFPARAM_waveDelta  (8)
+#define FFPARAM_waveMax   (9)
 
-#define FFPARAM_wordWordNum       (8)
+#define FFPARAM_wordWordNum       (10)
 
-#define FFPARAM_word_col_divid     (9)
-#define FFPARAM_word_word_divid     (10)
-
-
-#define FFPARAM_text_data     (11)
+#define FFPARAM_word_col_divid     (11)
+#define FFPARAM_word_word_divid     (12)
+#define FFPARAM_text_data     (13)
+#define FFPARAM_text_data1     (14)
+#define FFPARAM_text_data2     (15)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Plugin information
@@ -87,22 +88,29 @@ AddSubtract::AddSubtract()
     
     waveScale = 0.0;
 
-
+    waveDelta = 0.1;// TODO
+    waveMax = 1.0;// TODO
     
 
+    
+    SetParamInfo(FFPARAM_text_data, "osc text data0", FF_TYPE_TEXT, rawOscTextData.c_str());
+    SetParamInfo(FFPARAM_text_data1, "osc text data1", FF_TYPE_TEXT, rawOscTextData.c_str());
+    SetParamInfo(FFPARAM_text_data2, "osc text data2", FF_TYPE_TEXT, rawOscTextData.c_str());
+
+
+    
     SetParamInfo(FFPARAM_bWordRotate ,"word rotate",FF_TYPE_BOOLEAN,bWordRotate);
     SetParamInfo(FFPARAM_bWordTracking,"word tracking",FF_TYPE_BOOLEAN,bWordTracking);
 
     SetParamInfo(FFPARAM_wordRotateSpeed ,"word rotate speed",FF_TYPE_STANDARD,wordRotateSpeed / 10.0f);
     SetParamInfo(FFPARAM_wordLineNum ,"word line number",FF_TYPE_STANDARD,wordLineNum / 300.0f);
-    SetParamInfo(FFPARAM_wordWordNum ,"word word number",FF_TYPE_STANDARD,wordWordNum / 300.0f);
+//    SetParamInfo(FFPARAM_waveScale ,"word word number",FF_TYPE_STANDARD,waveScale);
     SetParamInfo(FFPARAM_wordLineSpacingRatio,"word line spacing",FF_TYPE_STANDARD,wordLineSpacingRatio);
     SetParamInfo(FFPARAM_wordWordSpacingRatio,"word word spacing",FF_TYPE_STANDARD,wordWordSpacingRatio);
     SetParamInfo(FFPARAM_wordOffset,"word offset",FF_TYPE_STANDARD,wordOffset / 20.0f);
     
-    rawOscTextData = "hello";
-    SetParamInfo(FFPARAM_text_data, "osc text data", FF_TYPE_TEXT, rawOscTextData.c_str());
-    
+    SetParamInfo(FFPARAM_waveDelta,"wave delta",FF_TYPE_STANDARD,waveDelta);
+    SetParamInfo(FFPARAM_waveMax,"wave max",FF_TYPE_STANDARD,waveMax);
 
     SetParamInfo(FFPARAM_word_col_divid, "column divid", FF_TYPE_TEXT, wordColDivid.c_str());
 
@@ -195,29 +203,39 @@ FFResult AddSubtract::ProcessOpenGL(ProcessOpenGLStruct *pGL)
     std::vector<float> oscDataInFloatVec = MyConvertStingToFloatVector(rawOscTextData);
     
     
-//    
-//    for (int i = 0; i < kTrackingDataSize; i++) {
-//        //        data[i] = 0.003 * float(i);
-//        float mark = oscDataInFloatVec[i];
-//        
-//        if (mark > 0.0) {
-//            trackingData[i] += waveDelta;
-//        }
-//        else{
-//            trackingData[i] -= waveDelta;
-//        }
-//        
-//        
-//        // clamp
-//        if (trackingData[i] < 0.0) {
-//            trackingData[i] = 0.0;
-//        }
-//        
-//        if(trackingData[i] > waveMax){
-//            trackingData[i] = waveMax;
-//        }
-//    }
+    // osc data sanity , all 0.0 by default
+    if(oscDataInFloatVec.size() != kTrackingDataSize){
+        for (int i = 0; i < kTrackingDataSize; i++) {
+//            trackingData[i] = 0.05 * i; // for debug only
+            trackingData[i] = 0.0;
+        }
+        
+    }else{
+        for (int i = 0; i < kTrackingDataSize; i++) {
+            //        data[i] = 0.003 * float(i);
+            float mark = oscDataInFloatVec[i];
+            
+            if (mark > 0.0) {
+                trackingData[i] += waveDelta;
+            }
+            else{
+                trackingData[i] -= waveDelta;
+            }
+            
+            
+            // clamp
+            if (trackingData[i] < 0.0) {
+                trackingData[i] = 0.0;
+            }
+            
+            if(trackingData[i] > waveMax*2.0){
+                trackingData[i] = waveMax*2.0;
+            }
+        }
+        
+    }
     
+
     
     
     float colDividFloat = std::stod(wordColDivid);
@@ -372,6 +390,14 @@ float AddSubtract::GetFloatParameter(unsigned int dwIndex)
             retValue = waveScale;
             return retValue;
             
+        case FFPARAM_waveDelta:
+            retValue = waveDelta;
+            return retValue;
+            
+        case FFPARAM_waveMax:
+            retValue = waveMax;
+            return retValue;
+            
 
             
         default:
@@ -425,7 +451,17 @@ FFResult AddSubtract::SetFloatParameter(unsigned int dwIndex, float value)
             waveScale = value;
             break;
             
-
+            
+        case FFPARAM_waveDelta:
+            waveDelta = value;
+            break;
+            
+            
+        case FFPARAM_waveMax:
+            waveMax = value;
+            break;
+            
+            
 
 
         default:
@@ -442,6 +478,9 @@ char* AddSubtract::GetTextParameter(unsigned int dwIndex)
     char* retValue;
     switch (dwIndex) {
         case FFPARAM_text_data:
+            retValue = const_cast<char*>(rawOscTextData.c_str());
+            break;
+        case FFPARAM_text_data1:
             retValue = const_cast<char*>(rawOscTextData.c_str());
             break;
             
@@ -463,6 +502,10 @@ FFResult AddSubtract::SetTextParameter(unsigned int dwIndex, const char *value){
     {
             
         case FFPARAM_text_data:
+            rawOscTextData = value;
+            break;
+            
+        case FFPARAM_text_data1:
             rawOscTextData = value;
             break;
             

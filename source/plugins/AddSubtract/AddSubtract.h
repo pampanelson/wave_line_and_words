@@ -109,7 +109,10 @@ protected:
     float waveDelta;
     float waveMax;
     
-    std::string rawOscTextData;
+    
+    
+    std::string rawOscTextData = "hello";
+    std::string rawOscTextData1 = "hello";
     int kTrackingDataSize = 12;
     GLfloat trackingData[12];
     
