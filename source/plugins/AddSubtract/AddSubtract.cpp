@@ -21,17 +21,6 @@
 #define FFPARAM_lineMaRippleSize      (7)
 #define FFPARAM_lineMaRippleSpeed     (8)
 
-#define FFPARAM_trk1Angle     (9)
-#define FFPARAM_trk1Power     (10)
-
-#define FFPARAM_trk2Angle     (11)
-#define FFPARAM_trk2Power     (12)
-
-#define FFPARAM_trk3Angle     (13)
-#define FFPARAM_trk3Power     (14)
-
-
-
 
 
 
@@ -106,16 +95,7 @@ AddSubtract::AddSubtract()
     
     
     
-    SetParamInfo(FFPARAM_trk1Angle,"trk 1 angle",FF_TYPE_STANDARD,trk1Angle);
-    SetParamInfo(FFPARAM_trk1Power,"trk 1 power",FF_TYPE_STANDARD,trk1Power);
-    
-    SetParamInfo(FFPARAM_trk2Angle,"trk 2 angle",FF_TYPE_STANDARD,trk2Angle);
-    SetParamInfo(FFPARAM_trk2Power,"trk 2 power",FF_TYPE_STANDARD,trk2Power);
-    
-    SetParamInfo(FFPARAM_trk3Angle,"trk 3 angle",FF_TYPE_STANDARD,trk3Angle);
-    SetParamInfo(FFPARAM_trk3Power,"trk 3 power",FF_TYPE_STANDARD,trk3Power);
-    
-    
+
 }
 
 AddSubtract::~AddSubtract()
@@ -163,19 +143,7 @@ FFResult AddSubtract::InitGL(const FFGLViewportStruct *vp)
     lineMaRippleSpeedLoc = m_shader.FindUniform("lineMaRippleSpeed");
     
     
-    
-    trk1AngleLoc = m_shader.FindUniform("trk1Angle");
-    trk1PowerLoc = m_shader.FindUniform("trk1Power");
-    
-    
-    trk2AngleLoc = m_shader.FindUniform("trk2Angle");
-    trk2PowerLoc = m_shader.FindUniform("trk2Power");
-    
-    
-    trk3AngleLoc = m_shader.FindUniform("trk3Angle");
-    trk3PowerLoc = m_shader.FindUniform("trk3Power");
-    
-    
+
     
     
     
@@ -248,20 +216,7 @@ FFResult AddSubtract::ProcessOpenGL(ProcessOpenGLStruct *pGL)
     
     
     
-    
-    glUniform1f(trk1AngleLoc,trk1Angle);
-    glUniform1f(trk1PowerLoc,trk1Power);
 
-    
-    glUniform1f(trk2AngleLoc,trk2Angle);
-    glUniform1f(trk2PowerLoc,trk2Power);
-    
-    
-    glUniform1f(trk3AngleLoc,trk3Angle);
-    glUniform1f(trk3PowerLoc,trk3Power);
-    
-    
-    
 
     
 
@@ -368,29 +323,7 @@ float AddSubtract::GetFloatParameter(unsigned int dwIndex)
             retValue = lineMaRippleSpeed / 10.;
             return retValue;
 
-        case FFPARAM_trk1Angle:
-            retValue = trk1Angle;
-            return retValue;
-        case FFPARAM_trk1Power:
-            retValue = trk1Power;
-            return retValue;
-            
-            
-        case FFPARAM_trk2Angle:
-            retValue = trk2Angle;
-            return retValue;
-        case FFPARAM_trk2Power:
-            retValue = trk2Power;
-            return retValue;
-        
-            
-        case FFPARAM_trk3Angle:
-            retValue = trk3Angle;
-            return retValue;
-        case FFPARAM_trk3Power:
-            retValue = trk3Power;
-            return retValue;
-            
+
         default:
             return retValue;
     }
@@ -440,29 +373,7 @@ FFResult AddSubtract::SetFloatParameter(unsigned int dwIndex, float value)
             break;
 
             
-        case FFPARAM_trk1Angle:
-            trk1Angle = value;
-            break;
-        case FFPARAM_trk1Power:
-            trk1Power = value;
-            break;
-            
-        case FFPARAM_trk2Angle:
-            trk2Angle = value;
-            break;
-        case FFPARAM_trk2Power:
-            trk2Power = value;
-            break;
-            
-            
-        case FFPARAM_trk3Angle:
-            trk3Angle = value;
-            break;
-        case FFPARAM_trk3Power:
-            trk3Power = value;
-            break;
-            
-            
+
 
 
         default:
