@@ -9,18 +9,23 @@
 //#define FFPARAM_SwitchTex   (0)
 //#define FFPARAM_Float1      (1)
 
+#define FFPARAM_text_data     (0)
 
-#define FFPARAM_bLineRipple       (0)
-#define FFPARAM_bLineTracking     (1)
+#define FFPARAM_bLineRipple       (1)
+#define FFPARAM_bLineTracking     (2)
 
-#define FFPARAM_lineNum       (2)
-#define FFPARAM_lineWidth     (3)
-#define FFPARAM_lineOffset        (4)
-#define FFPARAM_lineMiRippleSize      (5)
-#define FFPARAM_lineMiRippleSpeed     (6)
-#define FFPARAM_lineMaRippleSize      (7)
-#define FFPARAM_lineMaRippleSpeed     (8)
+#define FFPARAM_lineNum       (3)
+#define FFPARAM_lineWidth     (4)
+#define FFPARAM_lineOffset        (5)
+#define FFPARAM_lineMiRippleSize      (6)
+#define FFPARAM_lineMiRippleSpeed     (7)
+#define FFPARAM_lineMaRippleSize      (8)
+#define FFPARAM_lineMaRippleSpeed     (9)
 
+#define FFPARAM_waveScale   (10)
+
+#define FFPARAM_waveDelta  (11)
+#define FFPARAM_waveMax   (20)
 
 
 
@@ -90,9 +95,12 @@ AddSubtract::AddSubtract()
     SetParamInfo(FFPARAM_lineMaRippleSize,"line ma size",FF_TYPE_STANDARD,lineMaRippleSize);
     SetParamInfo(FFPARAM_lineMaRippleSpeed,"line ma speed",FF_TYPE_STANDARD,lineMaRippleSpeed / 10.0f);
     
+    SetParamInfo(FFPARAM_waveDelta,"wave delta",FF_TYPE_STANDARD,waveDelta);
+    SetParamInfo(FFPARAM_waveMax,"wave max",FF_TYPE_STANDARD,waveMax);
 
 
-    
+    SetParamInfo(FFPARAM_text_data, "oscdataline", FF_TYPE_TEXT, rawOscTextData.c_str());
+
     
     
 
@@ -144,7 +152,10 @@ FFResult AddSubtract::InitGL(const FFGLViewportStruct *vp)
     
     
 
+    waveScaleLoc = m_shader.FindUniform("waveScale");
     
+    
+    trackingDataLoc = m_shader.FindUniform("trackingData");
     
     
 	//the 0 means that the 'inputTexture' in
@@ -179,6 +190,44 @@ FFResult AddSubtract::ProcessOpenGL(ProcessOpenGLStruct *pGL)
 		return FF_FAIL;
 
     ticks = getTicks();
+    
+    
+    std::vector<float> oscDataInFloatVec = MyConvertStingToFloatVector(rawOscTextData);
+    
+    
+    // osc data sanity , all 0.0 by default
+    if(oscDataInFloatVec.size() != kTrackingDataSize){
+        for (int i = 0; i < kTrackingDataSize; i++) {
+            //            trackingData[i] = 0.05 * i; // for debug only
+            trackingData[i] = 0.0;
+        }
+        
+    }else{
+        for (int i = 0; i < kTrackingDataSize; i++) {
+            //        data[i] = 0.003 * float(i);
+            float mark = oscDataInFloatVec[i];
+            
+            if (mark > 0.0) {
+                trackingData[i] += waveDelta;
+            }
+            else{
+                trackingData[i] -= waveDelta;
+            }
+            
+            
+            // clamp
+            if (trackingData[i] < 0.0) {
+                trackingData[i] = 0.0;
+            }
+            
+            if(trackingData[i] > waveMax*2.0){
+                trackingData[i] = waveMax*2.0;
+            }
+        }
+        
+    }
+    
+    
     
 	//activate our shader
 	m_shader.BindShader();
@@ -215,7 +264,11 @@ FFResult AddSubtract::ProcessOpenGL(ProcessOpenGLStruct *pGL)
     glUniform1f(lineMaRippleSpeedLoc,lineMaRippleSpeed);
     
     
+    glUniform1fv(trackingDataLoc,kTrackingDataSize,trackingData);
     
+    
+    
+    glUniform1f(waveScaleLoc, waveScale);
 
 
     
@@ -324,6 +377,20 @@ float AddSubtract::GetFloatParameter(unsigned int dwIndex)
             return retValue;
 
 
+        case FFPARAM_waveScale:
+            retValue = waveScale;
+            return retValue;
+            
+        case FFPARAM_waveDelta:
+            retValue = waveDelta;
+            return retValue;
+            
+        case FFPARAM_waveMax:
+            retValue = waveMax;
+            return retValue;
+            
+
+            
         default:
             return retValue;
     }
@@ -373,7 +440,22 @@ FFResult AddSubtract::SetFloatParameter(unsigned int dwIndex, float value)
             break;
 
             
-
+            
+        case FFPARAM_waveScale:
+            waveScale = value;
+            break;
+            
+            
+        case FFPARAM_waveDelta:
+            waveDelta = value;
+            break;
+            
+            
+        case FFPARAM_waveMax:
+            waveMax = value;
+            break;
+            
+            
 
 
         default:
@@ -381,4 +463,39 @@ FFResult AddSubtract::SetFloatParameter(unsigned int dwIndex, float value)
 	}
 
 	return FF_SUCCESS;
+}
+
+
+
+char* AddSubtract::GetTextParameter(unsigned int dwIndex)
+{
+    
+    char* retValue;
+    switch (dwIndex) {
+
+        case FFPARAM_text_data:
+            retValue = const_cast<char*>(rawOscTextData.c_str());
+            break;
+
+        default:
+            return (char *)FF_FAIL;
+    }
+    return retValue;
+}
+
+FFResult AddSubtract::SetTextParameter(unsigned int dwIndex, const char *value){
+    switch (dwIndex)
+    {
+            
+
+            break;
+        case FFPARAM_text_data:
+            rawOscTextData = value;
+            break;
+
+        default:
+            return FF_FAIL;
+    }
+    
+    return FF_SUCCESS;
 }
