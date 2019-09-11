@@ -97,14 +97,14 @@ protected:
     
 
     float wordLineNum;
-    float wordWordNum;
     float wordLineSpacingRatio;
     float wordWordSpacingRatio;
     float wordOffset;
     float wordRotateSpeed;
     
-    float waveScale;
-    
+
+    float waveAmp;
+
     // control wave shape and change rate
     float waveDelta;
     float waveMax;
@@ -112,9 +112,12 @@ protected:
     
     
     std::string rawOscTextData = "hello";
-    std::string rawOscTextData1 = "hello";
-    int kTrackingDataSize = 12;
-    GLfloat trackingData[12];
+
+    
+    
+    int kTrackingDataSize = 8;
+    GLfloat trackingData[8]; // -1 for no tracking at all;
+    std::vector<float> trackingDataVec[8];
     
     
     std::string wordColDivid = "0";
@@ -143,7 +146,7 @@ protected:
     
     GLint wordRotateSpeedLoc;
     GLint wordLineNumLoc;
-    GLint wordWordNumLoc;
+    
     GLint wordLineSpacingRatioLoc;
     GLint wordWordspacingRatioLoc;
     GLint wordOffsetLoc;
@@ -151,8 +154,8 @@ protected:
     GLint trackingDataLoc;
 
 
-    GLint waveScaleLoc;
-    
+    GLint waveAmpLoc;// smaller means bigger wave peak to the lower wave bottom;// 0.05 ~ 0.6
+
     GLint wordWordDividLoc;
     GLint wordColDividLoc;
     

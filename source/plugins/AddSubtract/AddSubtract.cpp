@@ -23,17 +23,12 @@
 #define FFPARAM_wordWordSpacingRatio      (5)
 #define FFPARAM_wordOffset        (6)
 
-#define FFPARAM_waveScale   (7)
+#define FFPARAM_waveAmp  (7)
 #define FFPARAM_waveDelta  (8)
 #define FFPARAM_waveMax   (9)
-
-#define FFPARAM_wordWordNum       (10)
-
-#define FFPARAM_word_col_divid     (11)
-#define FFPARAM_word_word_divid     (12)
-#define FFPARAM_text_data     (13)
-#define FFPARAM_text_data1     (14)
-#define FFPARAM_text_data2     (15)
+#define FFPARAM_word_col_divid     (10)
+#define FFPARAM_word_word_divid     (11)
+#define FFPARAM_text_data     (12)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Plugin information
@@ -81,21 +76,17 @@ AddSubtract::AddSubtract()
     
     wordRotateSpeed = 2.0;
     wordLineNum = 20.;
-    wordWordNum = 10.;
+
     wordLineSpacingRatio = 0.1;
     wordWordSpacingRatio = 0.1;
     wordOffset = 2.;
     
-    waveScale = 0.0;
 
     waveDelta = 0.1;// TODO
     waveMax = 1.0;// TODO
-    
+    waveAmp = 0.0;
 
     
-    SetParamInfo(FFPARAM_text_data, "osc text data0", FF_TYPE_TEXT, rawOscTextData.c_str());
-    SetParamInfo(FFPARAM_text_data1, "osc text data1", FF_TYPE_TEXT, rawOscTextData.c_str());
-    SetParamInfo(FFPARAM_text_data2, "osc text data2", FF_TYPE_TEXT, rawOscTextData.c_str());
 
 
     
@@ -108,7 +99,8 @@ AddSubtract::AddSubtract()
     SetParamInfo(FFPARAM_wordLineSpacingRatio,"word line spacing",FF_TYPE_STANDARD,wordLineSpacingRatio);
     SetParamInfo(FFPARAM_wordWordSpacingRatio,"word word spacing",FF_TYPE_STANDARD,wordWordSpacingRatio);
     SetParamInfo(FFPARAM_wordOffset,"word offset",FF_TYPE_STANDARD,wordOffset / 20.0f);
-    
+    SetParamInfo(FFPARAM_waveAmp,"wave amp",FF_TYPE_STANDARD,waveAmp);
+
     SetParamInfo(FFPARAM_waveDelta,"wave delta",FF_TYPE_STANDARD,waveDelta);
     SetParamInfo(FFPARAM_waveMax,"wave max",FF_TYPE_STANDARD,waveMax);
 
@@ -116,6 +108,7 @@ AddSubtract::AddSubtract()
 
     SetParamInfo(FFPARAM_word_word_divid, "word divid", FF_TYPE_TEXT, wordWordDivid.c_str());
     
+    SetParamInfo(FFPARAM_text_data, "osc text data0", FF_TYPE_TEXT, rawOscTextData.c_str());
 
 }
 
@@ -152,14 +145,13 @@ FFResult AddSubtract::InitGL(const FFGLViewportStruct *vp)
     
     wordRotateSpeedLoc = m_shader.FindUniform("wordRotateSpeed");
     wordLineNumLoc = m_shader.FindUniform("wordLineNum");
-    wordWordNumLoc = m_shader.FindUniform("wordWordNum");
     wordLineSpacingRatioLoc = m_shader.FindUniform("wordLineSpacingRatio");
     wordWordspacingRatioLoc = m_shader.FindUniform("wordWordSpacingRatio");
     wordOffsetLoc = m_shader.FindUniform("wordOffset");
     
 
-    waveScaleLoc = m_shader.FindUniform("waveScale");
-    
+    waveAmpLoc = m_shader.FindUniform("globalWaveAmp");
+
     
     trackingDataLoc = m_shader.FindUniform("trackingData");
 
@@ -209,32 +201,32 @@ FFResult AddSubtract::ProcessOpenGL(ProcessOpenGLStruct *pGL)
 //            trackingData[i] = 0.05 * i; // for debug only
             trackingData[i] = 0.0;
         }
-        
+
     }else{
         for (int i = 0; i < kTrackingDataSize; i++) {
             //        data[i] = 0.003 * float(i);
             float mark = oscDataInFloatVec[i];
-            
+
             if (mark > 0.0) {
                 trackingData[i] += waveDelta;
             }
             else{
                 trackingData[i] -= waveDelta;
             }
-            
-            
+
+
             // clamp
             if (trackingData[i] < 0.0) {
                 trackingData[i] = 0.0;
             }
-            
+
             if(trackingData[i] > waveMax*2.0){
                 trackingData[i] = waveMax*2.0;
             }
         }
-        
+
     }
-    
+
 
     
     
@@ -270,7 +262,7 @@ FFResult AddSubtract::ProcessOpenGL(ProcessOpenGLStruct *pGL)
     
     glUniform1f(wordRotateSpeedLoc, wordRotateSpeed);
     glUniform1f(wordLineNumLoc,wordLineNum);
-    glUniform1f(wordWordNumLoc,wordWordNum);
+
     glUniform1f(wordLineSpacingRatioLoc,wordLineSpacingRatio);
     glUniform1f(wordWordspacingRatioLoc,wordWordSpacingRatio);
     glUniform1f(wordOffsetLoc,wordOffset);
@@ -280,7 +272,7 @@ FFResult AddSubtract::ProcessOpenGL(ProcessOpenGLStruct *pGL)
 
     
     
-    glUniform1f(waveScaleLoc, waveScale);
+    glUniform1f(waveAmpLoc, waveAmp);
 
     glUniform1f(wordColDividLoc, colDividFloat);
     
@@ -371,9 +363,6 @@ float AddSubtract::GetFloatParameter(unsigned int dwIndex)
         case FFPARAM_wordLineNum :
             retValue = wordLineNum / 300.0;
             return retValue;
-        case FFPARAM_wordWordNum :
-            retValue = wordWordNum / 300.0;
-            return retValue;
             
         case FFPARAM_wordLineSpacingRatio:
             retValue = wordLineSpacingRatio;
@@ -386,9 +375,10 @@ float AddSubtract::GetFloatParameter(unsigned int dwIndex)
             return retValue;
             
             
-        case FFPARAM_waveScale:
-            retValue = waveScale;
+        case FFPARAM_waveAmp:
+            retValue = waveAmp;
             return retValue;
+            
             
         case FFPARAM_waveDelta:
             retValue = waveDelta;
@@ -433,9 +423,7 @@ FFResult AddSubtract::SetFloatParameter(unsigned int dwIndex, float value)
         case FFPARAM_wordLineNum :
             wordLineNum = value * 300.0;
             break;
-        case FFPARAM_wordWordNum :
-            wordWordNum = value * 300.0;
-            break;
+
         case FFPARAM_wordLineSpacingRatio:
             wordLineSpacingRatio = value;
             break;
@@ -447,10 +435,9 @@ FFResult AddSubtract::SetFloatParameter(unsigned int dwIndex, float value)
             break;
             
         
-        case FFPARAM_waveScale:
-            waveScale = value;
+        case FFPARAM_waveAmp:
+            waveAmp = value;
             break;
-            
             
         case FFPARAM_waveDelta:
             waveDelta = value;
@@ -480,10 +467,7 @@ char* AddSubtract::GetTextParameter(unsigned int dwIndex)
         case FFPARAM_text_data:
             retValue = const_cast<char*>(rawOscTextData.c_str());
             break;
-        case FFPARAM_text_data1:
-            retValue = const_cast<char*>(rawOscTextData.c_str());
-            break;
-            
+
         case FFPARAM_word_col_divid:
             retValue = const_cast<char*>(wordColDivid.c_str());
             break;
@@ -505,10 +489,7 @@ FFResult AddSubtract::SetTextParameter(unsigned int dwIndex, const char *value){
             rawOscTextData = value;
             break;
             
-        case FFPARAM_text_data1:
-            rawOscTextData = value;
-            break;
-            
+
             
         case FFPARAM_word_col_divid:
             wordColDivid = value;

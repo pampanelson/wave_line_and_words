@@ -26,20 +26,19 @@ uniform float bWordTracking;
 
 uniform float wordRotateSpeed;
 uniform float wordLineNum;
-uniform float wordWordNum;
 uniform float wordLineSpacingRatio;
 uniform float wordWordSpacingRatio;
 uniform float wordOffset;
 
-uniform float waveScale;
+uniform float globalWaveAmp;// smaller means bigger wave peak to the lower wave bottom;
 
 uniform float wordColDivid;
 uniform float wordWordDivid;
-uniform float trackingData[12]; // 12 size()
+uniform float trackingData[8]; // 12 size()
 
 
-int kTrackingDataSize = 12;
-float kTrackingDataSizeF = 12.0;
+int kTrackingDataSize = 8;
+float kTrackingDataSizeF = 8.0;
 float PI = 3.1415926535;
 float aPI = acos(-1.);
 
@@ -74,7 +73,7 @@ float wave3(float x,float peak,float narrow){
 vec3 word_wave(vec2 st,float rotateSpeed,float distort,float colNumber,float offsetY,float lsratio,float wsratio){
     
     float speed = rotateSpeed;// sign means rotate clock(+) or counterclock(-)
-    float piFactor = 128.0;// bigger number will avoid jump on loop but no effect on rotate speed
+    float piFactor = 496.0;// bigger number will avoid jump on loop but no effect on rotate speed
     float m = mod(speed*iTime,piFactor * PI);
     
     // make distort
@@ -164,22 +163,21 @@ vec3 word_wave(vec2 st,float rotateSpeed,float distort,float colNumber,float off
 }
 
 
-float wave_distort(float use,vec2 st,float angle,float scale){
+float wave_distort11(bool use,vec2 st,float angle,float factor){
     // distort =========================================
     
-    float fixScale = 0.5;
+    
     vec2 st2 = st;
     //st.x = st.x/(PI*2.0) + .5; // before st.x is -π ~ π after is  normalized 0.0 ~ 1.0
     
     float x = st2.x;
-    x *= .2; // wave smooth factor
+    x *= factor; // wave smooth factor
     // x -= fract(iTime*0.1);
     //x += 0.5;
     //x = -x;
     
     // =+++++++++++++ IMPORTANT ++++++++++++++++++++++++++++
-    // not use distort or distort angle is 0.0 which is default value
-    if(use < 0.5){
+    if(!use){
         
         x += 1.; // this value makes no distort ================ . TODO
     }
@@ -191,33 +189,65 @@ float wave_distort(float use,vec2 st,float angle,float scale){
     
     // float x = uv.x;
     float y = 0.0;
-    // float a1 = -.2*sin(iTime*5.0);
-    // a1 = 0.8; // use this one to control wave shape, 0.05 is small 0.8 is biggest
-    float a1 = scale;
-    a1 += sin(iTime)*0.02;// add some dynamics
-    float f1 = 12.5;
+    float a1 = -.2*sin(iTime*5.0);
+    
+    float f1 = 3.5 + sin(iTime) ;
     float y1 = wave2(x,a1,f1);
     float a2 = 0.0;//
-    // a2 = sin(iTime*10.)*0.1;
-    a2 = 0.1;
-    float f2 = 8.0; // power ===============================
+    a2 = sin(iTime*10.)*0.1;
+    float f2 = 9.0; // power ===============================
     float y2 = wave2(x+0.1,a2,f2);
-    y = smax(y,y1,0.9);
-    y = smax(y,y2,0.8);
-    // y = smax(y,wave1(x*0.01),-0.9);
-    float peak3 = 0.15;//
-    float narrow3 = 4.0;//*sin(iTime*10.);
-    float y3 = wave3(x+0.2,peak3,narrow3);
+    y = smax(y,y1,0.1);
+    y = smax(y,y2,0.2);
+    //y = smax(y,wave1(x*0.01),-0.9);
+    float peak3 = 0.1;//
+    float narrow3 = 5.0 + 2.*sin(iTime*2.);
+    float y3 = wave3(x+0.1*sin(iTime*5.),peak3,narrow3);
     
-    y = smax(y,y3,0.5);// 0.1 is sharper wave , ============  TODO
-    y = smax(y,0.2,fixScale);// scale is 0.01 ~ 0.9 , lower is bigger ========  TODO
+    y = smax(y,y3,0.8);
+    //y = smax(y,0.2,0.9);
     
-    y *= 1.;// whole scale =======================
-    y += sin(iTime) * 0.01; // shaking
+    //y *= 1.2;// whole scale =======================
     
     return y;
 }
 
+
+
+float wave_distort1(float use,vec2 st,float angle,float amp){
+    // after trying for +y axis , angle center is 0.5 , range is about 3.5, means -3.0~4.0 is its range
+    
+    // normalize from 0.0 ~ 1.0
+    
+    // important ========================================
+    angle *= 7.;// 0~7.;
+    angle -= 3.0;// -3 ~ 4.  original 0.5 now is 0.5 still
+
+    // input angle should be < -0.1 or > 1.1 for save no motion at all
+    
+    float y = 0.0;
+    if(use > 0.0){
+        bool bUseWaveDistort = true;
+        y = wave_distort11(bUseWaveDistort,st,angle,0.2+ rand(iTime*0.000001));
+        float y1 = wave_distort11(bUseWaveDistort,st,angle,0.3 + rand(iTime*0.000001));
+        y = mix(y,y1,0.9 + rand(iTime*0.000001) );
+        float y2 = wave_distort11(bUseWaveDistort,st,angle,0.9 + rand(iTime*0.000001));
+        y = mix(y,y2,0.9+ rand(iTime*0.000001));
+        
+        float y3 = wave_distort11(bUseWaveDistort,st,angle,1.9);
+        
+        y = mix(y,y3,0.1+ rand(iTime*0.000001));
+        
+        float waveBottom = amp;// smaller means bigger wave peak to the lower wave bottom;
+        // 0.05 ~ 0.6
+        y = smax(y,waveBottom,0.9);
+        
+    }
+    
+    
+    
+    return y;
+}
 
 
 void main()
@@ -247,28 +277,25 @@ void main()
     vec2 st = vec2(atan(uv.x,uv.y),length(uv));
     //st.x += PI;// 0 ~ 2PI on -y axis
     
-    // distort =========================================
-    
-    // float angle;
-    // angle = 0.0;
-    // angle = clamp(0.0,1.0,angle);//angle is 0. ~ 1, 1 is right direct , 0 is left direct
-    // angle = (sin(iTime) + 1.)*0.5;// pass parameter
-    
-
     float y = 0.0;
     
     // y += wave_distort(bWordTracking,st,0.5,0.8);
-
-     for (int i = 0; i < kTrackingDataSize; i++)
-     {
-         // if(trackingData[i] > 0.0){
-             float angleIndex = 1.0/kTrackingDataSizeF * float(i);
-             angleIndex += 0.01 * rand(iTime)/kTrackingDataSizeF; // and some random offset 
-             float scale = clamp(0.001,1.9,trackingData[i]);
-             y += wave_distort(bWordTracking,st,angleIndex,scale);
-         // }
-
-     }
+    
+    if(bWordTracking>0.0){
+        for (int i = 0; i < kTrackingDataSize; i++)
+        {
+            float angle = trackingData[i];
+            float amp = globalWaveAmp;// smaller means bigger wave peak to the lower wave bottom;
+            // 0.05 ~ 0.6
+            
+            y = smax(y,wave_distort1(bWordTracking,st,angle,amp),0.1);
+            
+        }
+    }else{
+        y = globalWaveAmp;
+    }
+    
+    
     
     
 
