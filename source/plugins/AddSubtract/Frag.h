@@ -299,20 +299,13 @@ void main()
         
         
         // read position from texture;
-        float x;
-        float y = 1. - st1.x;
+        // float x = fragCoord.x/iResolution.x;
+        // float y = 1. - st1.x;
+        // distort = texture2D(inputTexture,vec2(x,y)).r;
 
-        if(frame <= 1600.){
 
-            x = frame/1600.;
-            distort = texture2D(inputTexture,vec2(x,y)).r/waveFFTFactor;
+        distort = texture2D(inputTexture,vec2(st.x/3.5,0.5)).r;
 
-        }else{
-
-            x = (frame - 1600.)/1600.;
-            distort = texture2D(inputTexture,vec2(x,y)).g/waveFFTFactor;
-
-        }
         
     }else{
         distort = globalWaveAmp;
@@ -327,7 +320,15 @@ void main()
     
     col = word_wave(st,wordRotateSpeed,distort,wordLineNum,wordOffset,wordLineSpacingRatio,wordWordSpacingRatio);
     
-    
+
+    // combine with another data channel from texture ================
+    // vec3 col1 = texture2D(inputTexture,uv1).rrr;
+    // col = mix(col,col1,0.5);
+
+
+
+
+
     // debug distort wave =============
     // bool bWaveDistortDebug = false;
     // if(st.y < y && bWaveDistortDebug){
