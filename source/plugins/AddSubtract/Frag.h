@@ -280,21 +280,32 @@ void main()
     //st.x += PI;// 0 ~ 2PI on -y axis
     vec2 st1 = st;
 
-    st1 += PI;
-    st1 /= PI;  // st1 is from 0~1
-    float distort = 0.0;
+    st1.x += PI;
+    st1.x /= 2. * PI;  // st1 is from 0~1
+    float y = 0.0;
     
     // y += wave_distort(bWordTracking,st,0.5,0.8);
     
+    float colAdd = 0.;
     if(bWordTracking>0.0){
 //        for (int i = 0; i < kTrackingDataSize; i++)
 //        {
-//            float angle = trackingData[i];
-//            float amp = globalWaveAmp;// smaller means bigger wave peak to the lower wave bottom;
-//            // 0.05 ~ 0.6
-//
-//            y = smax(y,wave_distort1(bWordTracking,st,angle,amp),0.1);
-//
+
+           float angle = 0.5;
+            float mark = texture2D(inputTexture,vec2(0.1,0.5)).r;
+
+            if(mark > 0.3){
+                colAdd = 0.2;
+                angle += 0.3;
+                    
+            }
+        
+
+           float amp = globalWaveAmp;// smaller means bigger wave peak to the lower wave bottom;
+           // 0.05 ~ 0.6
+
+           y = smax(y,wave_distort1(bWordTracking,st,angle,amp),0.1);
+
 //        }
         
         
@@ -303,12 +314,11 @@ void main()
         // float y = 1. - st1.x;
         // distort = texture2D(inputTexture,vec2(x,y)).r;
 
+        // float amp = globalWaveAmp;
 
-        distort = texture2D(inputTexture,vec2(st.x/3.5,0.5)).r;
 
-        
     }else{
-        distort = globalWaveAmp;
+        y = globalWaveAmp;
     }
     
     
@@ -318,8 +328,11 @@ void main()
     vec3 col;
     // vec3 word_wave(vec2 st,float rotateSpeed,float distort,float colNZumber,float offsetY,float lsratio,float wsratio){
     
-    col = word_wave(st,wordRotateSpeed,distort,wordLineNum,wordOffset,wordLineSpacingRatio,wordWordSpacingRatio);
+    col = word_wave(st,wordRotateSpeed,y,wordLineNum,wordOffset,wordLineSpacingRatio,wordWordSpacingRatio);
     
+
+    col.r -= colAdd;// use color change to debug if get parameter from texture
+
 
     // combine with another data channel from texture ================
     // vec3 col1 = texture2D(inputTexture,uv1).rrr;
