@@ -153,7 +153,7 @@ vec3 word_wave(vec2 st,float rotateSpeed,float distort,float colNumber,float off
         localPolar.y = 1. - localPolar.y;
         // maybe need flip x axis also 
 //        localPolar.x = 1. - localPolar.x;
-        col = texture2D(inputTexture,localPolar).xyz;
+        col = texture2D(inputTexture,localPolar).bbb;
         
     }
     
