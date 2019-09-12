@@ -29,6 +29,7 @@
 #define FFPARAM_word_col_divid     (10)
 #define FFPARAM_word_word_divid     (11)
 #define FFPARAM_text_data     (12)
+#define FFPARAM_fft_factor      (13)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Plugin information
@@ -86,9 +87,9 @@ AddSubtract::AddSubtract()
     waveMax = 1.0;// TODO
     waveAmp = 0.0;
 
-    
+    frame = 0.0;
 
-
+    fftFactor = 100.;
     
     SetParamInfo(FFPARAM_bWordRotate ,"word rotate",FF_TYPE_BOOLEAN,bWordRotate);
     SetParamInfo(FFPARAM_bWordTracking,"word tracking",FF_TYPE_BOOLEAN,bWordTracking);
@@ -109,6 +110,8 @@ AddSubtract::AddSubtract()
     SetParamInfo(FFPARAM_word_word_divid, "word divid", FF_TYPE_TEXT, wordWordDivid.c_str());
     
     SetParamInfo(FFPARAM_text_data, "osc text data0", FF_TYPE_TEXT, rawOscTextData.c_str());
+
+    SetParamInfo(FFPARAM_fft_factor,"fft factor",FF_TYPE_STANDARD,fftFactor);
 
 }
 
@@ -152,6 +155,8 @@ FFResult AddSubtract::InitGL(const FFGLViewportStruct *vp)
 
     waveAmpLoc = m_shader.FindUniform("globalWaveAmp");
 
+    frameLoc = m_shader.FindUniform("frame");
+    fftFactorLoc = m_shader.FindUniform("waveFFTFactor");
     
     trackingDataLoc = m_shader.FindUniform("trackingData");
 
@@ -190,7 +195,7 @@ FFResult AddSubtract::ProcessOpenGL(ProcessOpenGLStruct *pGL)
 		return FF_FAIL;
 
     ticks = getTicks();
-    
+    frame += 1.;
 
     std::vector<float> oscDataInFloatVec = MyConvertStingToFloatVector(rawOscTextData);
     
@@ -248,8 +253,8 @@ FFResult AddSubtract::ProcessOpenGL(ProcessOpenGLStruct *pGL)
     
     glUniform1fv(trackingDataLoc,kTrackingDataSize,trackingData);
 
-    
-    
+    glUniform1f(frameLoc, frame);
+    glUniform1f(fftFactorLoc, fftFactor*100.);
     glUniform1f(waveAmpLoc, waveAmp);
 
     glUniform1f(wordColDividLoc, colDividFloat);
@@ -367,7 +372,11 @@ float AddSubtract::GetFloatParameter(unsigned int dwIndex)
             return retValue;
             
 
+        case FFPARAM_fft_factor:
+            retValue = fftFactor;
+            return retValue;
             
+
         default:
             return retValue;
     }
@@ -424,6 +433,10 @@ FFResult AddSubtract::SetFloatParameter(unsigned int dwIndex, float value)
             
         case FFPARAM_waveMax:
             waveMax = value;
+            break;
+            
+        case FFPARAM_fft_factor:
+            fftFactor = value;
             break;
             
             

@@ -170,6 +170,10 @@ protected:
     GLint m_SwitchTexLocation;
     GLint m_Float1Location;
     
+    GLint frameLoc;
+    GLint fftFactorLoc;
     double ticks;
-
+    double frame;
+    
+    float fftFactor;
 };

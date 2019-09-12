@@ -35,7 +35,9 @@ uniform float globalWaveAmp;// smaller means bigger wave peak to the lower wave 
 uniform float wordColDivid;
 uniform float wordWordDivid;
 uniform float trackingData[8]; // 12 size()
-
+uniform float frame;
+uniform float waveFFTFactor;
+                                                        
 
 int kTrackingDataSize = 8;
 float kTrackingDataSizeF = 8.0;
@@ -276,23 +278,44 @@ void main()
     
     vec2 st = vec2(atan(uv.x,uv.y),length(uv));
     //st.x += PI;// 0 ~ 2PI on -y axis
-    
-    float y = 0.0;
+    vec2 st1 = st;
+
+    st1 += PI;
+    st1 /= PI;  // st1 is from 0~1
+    float distort = 0.0;
     
     // y += wave_distort(bWordTracking,st,0.5,0.8);
     
     if(bWordTracking>0.0){
-        for (int i = 0; i < kTrackingDataSize; i++)
-        {
-            float angle = trackingData[i];
-            float amp = globalWaveAmp;// smaller means bigger wave peak to the lower wave bottom;
-            // 0.05 ~ 0.6
-            
-            y = smax(y,wave_distort1(bWordTracking,st,angle,amp),0.1);
-            
+//        for (int i = 0; i < kTrackingDataSize; i++)
+//        {
+//            float angle = trackingData[i];
+//            float amp = globalWaveAmp;// smaller means bigger wave peak to the lower wave bottom;
+//            // 0.05 ~ 0.6
+//
+//            y = smax(y,wave_distort1(bWordTracking,st,angle,amp),0.1);
+//
+//        }
+        
+        
+        // read position from texture;
+        float x;
+        float y = 1. - st1.x;
+
+        if(frame <= 1600.){
+
+            x = frame/1600.;
+            distort = texture2D(inputTexture,vec2(x,y)).r/waveFFTFactor;
+
+        }else{
+
+            x = (frame - 1600.)/1600.;
+            distort = texture2D(inputTexture,vec2(x,y)).g/waveFFTFactor;
+
         }
+        
     }else{
-        y = globalWaveAmp;
+        distort = globalWaveAmp;
     }
     
     
@@ -302,7 +325,7 @@ void main()
     vec3 col;
     // vec3 word_wave(vec2 st,float rotateSpeed,float distort,float colNZumber,float offsetY,float lsratio,float wsratio){
     
-    col = word_wave(st,wordRotateSpeed,y,wordLineNum,wordOffset,wordLineSpacingRatio,wordWordSpacingRatio);
+    col = word_wave(st,wordRotateSpeed,distort,wordLineNum,wordOffset,wordLineSpacingRatio,wordWordSpacingRatio);
     
     
     // debug distort wave =============
