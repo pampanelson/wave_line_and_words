@@ -170,6 +170,14 @@ protected:
     GLint m_SwitchTexLocation;
     GLint m_Float1Location;
     
+    GLint trk1Loc;
+    GLint trk2Loc;
+    GLint trk3Loc;
+    
+    float trk1;
+    float trk2;
+    float trk3;
+
     double ticks;
 
 };

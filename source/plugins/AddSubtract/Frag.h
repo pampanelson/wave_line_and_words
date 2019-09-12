@@ -37,6 +37,10 @@ uniform float wordWordDivid;
 uniform float trackingData[8]; // 12 size()
 
 
+uniform float trk1;
+uniform float trk2;
+uniform float trk3;
+
 int kTrackingDataSize = 8;
 float kTrackingDataSizeF = 8.0;
 float PI = 3.1415926535;
@@ -282,19 +286,26 @@ void main()
     // y += wave_distort(bWordTracking,st,0.5,0.8);
     
     if(bWordTracking>0.0){
-        for (int i = 0; i < kTrackingDataSize; i++)
-        {
-            float angle = trackingData[i];
-            float amp = globalWaveAmp;// smaller means bigger wave peak to the lower wave bottom;
-            // 0.05 ~ 0.6
+        // for (int i = 0; i < kTrackingDataSize; i++)
+        // {
+        //     float angle = trackingData[i];
+        //     float amp = globalWaveAmp;// smaller means bigger wave peak to the lower wave bottom;
+        //     // 0.05 ~ 0.6
             
-            y = smax(y,wave_distort1(bWordTracking,st,angle,amp),0.1);
+        //     y = smax(y,wave_distort1(bWordTracking,st,angle,amp),0.1);
             
-        }
+        // }
+
+        // use manual sound input tracker
+        float amp = globalWaveAmp;
+        y = smax(y,wave_distort1(bWordTracking,st,trk1,amp),0.1);
+        y = smax(y,wave_distort1(bWordTracking,st,trk2,amp),0.1);
+        y = smax(y,wave_distort1(bWordTracking,st,trk3,amp),0.1);
+
     }else{
         y = globalWaveAmp;
     }
-    
+
     
     
     
