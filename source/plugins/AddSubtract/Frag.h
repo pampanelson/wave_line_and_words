@@ -100,15 +100,26 @@ void main()
     float x3 = center.x - cos(angle*PI)*r;
     float y3 = center.y + sin(angle*PI)*r;
 
-    if(length(uv1-vec2(x3,y3))< 0.01){
-        col += 1.;
+    if(length(uv1-vec2(x3,y3))< 0.1){
+        vec2 readst = vec2(uv1.x,1.-st1y);
+        col += texture2D(inputTexture,readst).rgb*0.8;
+
+        vec3 texCol = col;
+
+        if(col.r < 0.8 && length(uv1-vec2(x3,y3))< 0.01){
+
+            col = vec3(0.,1.,.0);
+
+        }
+    }else{
+        //col += texture2D(inputTexture,uv).rgb*0.2;
+
     }
     
     if(length(uv1-center)< 0.03){
         col.r += 1.;
     }
     
-
 
 
     fragColor = vec4(col,1.0);
