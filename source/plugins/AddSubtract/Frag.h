@@ -57,8 +57,6 @@ void main()
     
     
     vec2 uv = (fragCoord.xy - .5 * iResolution.xy)/iResolution.x; // uv -.5 ~ .5  , x axis is scale t0 1.
-    vec2 uv1 = gl_FragCoord.xy / iResolution.xy;
-    vec2 uv2 = fragCoord.xy / iResolution.xy;
     // prepare uv for st **********************************
     uv *= 2.0; // -1. ~ 1.
     uv.y += iResolution.y/iResolution.x;// origin point on (0.5 * x , 0.0)
@@ -82,16 +80,24 @@ void main()
     
     vec3 col;
 
-    float mark;
-    mark = texture2D(inputTexture,vec2(gl_FragCoord.x/iResolution.x,gl_FragCoord.y/iResolution.y)).r;
+    vec2 uv1 = fragCoord.xy/iResolution.xy;
+    uv1.y *= iResolution.y/iResolution.x;
+    
+    float angle = 0.1;
+    float r = 0.3;
+    vec2 center = vec2(0.5,0.);
+    
+    float x3 = center.x - cos(angle*PI)*r;
+    float y3 = center.y + sin(angle*PI)*r;
 
-
-    col = vec3(mark);
-
-    col = vec3(stx,sty,0.0); // check texture 
-
-
-
+    if(length(uv1-vec2(x3,y3))< 0.01){
+        col += 1.;
+    }
+    
+    if(length(uv1-center)< 0.03){
+        col.r += 1.;
+    }
+    
 
 
 
