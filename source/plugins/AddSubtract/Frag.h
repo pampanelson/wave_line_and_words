@@ -111,6 +111,8 @@ void main()
             col = vec3(0.,1.,.0);
 
         }
+
+        
     }else{
         //col += texture2D(inputTexture,uv).rgb*0.2;
 
