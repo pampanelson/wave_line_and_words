@@ -37,7 +37,13 @@ uniform float wordWordDivid;
 uniform float trackingData[8]; // 12 size()
 uniform float frame;
 uniform float waveFFTFactor;
-                                                        
+                    
+uniform float stTrackRadius;
+uniform float stTrackOriginX;
+uniform float stTrackOriginY;
+uniform float stTrackAngleOffset;
+
+
 float PI = 3.1415926535;
 float aPI = acos(-1.);
 
@@ -81,11 +87,15 @@ void main()
     vec3 col;
 
     vec2 uv1 = fragCoord.xy/iResolution.xy;
+    float st1y = uv1.y;
     uv1.y *= iResolution.y/iResolution.x;
-    
-    float angle = 0.1;
-    float r = 0.3;
+
+    col = texture2D(inputTexture,vec2(uv1.x,1.-st1y)).rgb;
+
+    float angle = stTrackAngleOffset;
+    float r = stTrackRadius;
     vec2 center = vec2(0.5,0.);
+    center = vec2(stTrackOriginX,stTrackOriginY);
     
     float x3 = center.x - cos(angle*PI)*r;
     float y3 = center.y + sin(angle*PI)*r;

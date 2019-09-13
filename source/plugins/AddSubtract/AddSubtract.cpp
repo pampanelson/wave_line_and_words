@@ -30,6 +30,11 @@
 #define FFPARAM_word_word_divid     (11)
 #define FFPARAM_text_data     (12)
 #define FFPARAM_fft_factor      (13)
+#define FFPARAM_st_track_r      (14)
+
+#define FFPARAM_st_track_orgX (15)
+#define FFPARAM_st_track_orgY (16)
+#define FFPARAM_st_track_angleOffset (17)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Plugin information
@@ -112,6 +117,11 @@ AddSubtract::AddSubtract()
     SetParamInfo(FFPARAM_text_data, "osc text data0", FF_TYPE_TEXT, rawOscTextData.c_str());
 
     SetParamInfo(FFPARAM_fft_factor,"fft factor",FF_TYPE_STANDARD,fftFactor);
+    SetParamInfo(FFPARAM_st_track_r,"st track r",FF_TYPE_STANDARD,stTrackRadius);
+    SetParamInfo(FFPARAM_st_track_orgX,"st track org x",FF_TYPE_STANDARD,stTrackOriginX);
+    SetParamInfo(FFPARAM_st_track_orgY,"st track org y",FF_TYPE_STANDARD,stTrackOriginY);
+    
+    SetParamInfo(FFPARAM_st_track_angleOffset,"st track angle off set ",FF_TYPE_STANDARD,stTrackAngleOffset);
 
 }
 
@@ -163,7 +173,14 @@ FFResult AddSubtract::InitGL(const FFGLViewportStruct *vp)
     wordWordDividLoc = m_shader.FindUniform("wordWordDivid");
     wordColDividLoc = m_shader.FindUniform("wordColDivid");
     
-	//the 0 means that the 'inputTexture' in
+
+    
+    stTrackRadiusLoc = m_shader.FindUniform("stTrackRadius");
+    stTrackOriginXLoc = m_shader.FindUniform("stTrackOriginX");
+    stTrackOriginYLoc = m_shader.FindUniform("stTrackOriginY");
+    stTrackAngleOffsetLoc = m_shader.FindUniform("stTrackAngleOffset");
+    
+    //the 0 means that the 'inputTexture' in
 	//the shader will use the texture bound to GL texture unit 0
 	glUniform1i(m_inputTextureLocation, 0);
 	
@@ -261,6 +278,12 @@ FFResult AddSubtract::ProcessOpenGL(ProcessOpenGLStruct *pGL)
     
     glUniform1f(wordWordDividLoc, wordDividFloat);
     
+    glUniform1f(stTrackRadiusLoc, stTrackRadius);
+    
+    glUniform1f(stTrackAngleOffsetLoc, stTrackAngleOffset);
+    
+    glUniform1f(stTrackOriginXLoc,stTrackOriginX);
+    glUniform1f(stTrackOriginYLoc, stTrackOriginY);
 
     if(bWordRotate){
         glUniform1f(bWordRotateLoc,1.0);
@@ -376,6 +399,19 @@ float AddSubtract::GetFloatParameter(unsigned int dwIndex)
             retValue = fftFactor;
             return retValue;
             
+        case FFPARAM_st_track_r:
+            retValue = stTrackRadius;
+            return retValue;
+        case FFPARAM_st_track_angleOffset:
+            retValue = stTrackAngleOffset;
+            return retValue;
+        case FFPARAM_st_track_orgX:
+            retValue = stTrackOriginX;
+            return retValue;
+        case FFPARAM_st_track_orgY:
+            retValue = stTrackOriginY;
+            return retValue;
+            
 
         default:
             return retValue;
@@ -440,7 +476,20 @@ FFResult AddSubtract::SetFloatParameter(unsigned int dwIndex, float value)
             break;
             
             
-
+        case FFPARAM_st_track_r:
+            stTrackRadius = value;
+            break;
+        case FFPARAM_st_track_angleOffset:
+            stTrackAngleOffset = value;
+            break;
+        case FFPARAM_st_track_orgY:
+            stTrackOriginY = value;
+            break;
+        case FFPARAM_st_track_orgX:
+            stTrackOriginX = value;
+            break;
+            
+            
 
         default:
             return FF_FAIL;

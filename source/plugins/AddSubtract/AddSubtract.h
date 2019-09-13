@@ -172,6 +172,20 @@ protected:
     
     GLint frameLoc;
     GLint fftFactorLoc;
+    
+    GLint stTrackRadiusLoc;
+    GLint stTrackOriginXLoc;
+    GLint stTrackOriginYLoc;
+    GLint stTrackAngleOffsetLoc;
+
+    
+    
+    float stTrackRadius;
+    float stTrackOriginX;
+    float stTrackOriginY;
+    float stTrackAngleOffset;
+
+
     double ticks;
     double frame;
     
