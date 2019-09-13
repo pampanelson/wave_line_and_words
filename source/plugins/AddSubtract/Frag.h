@@ -214,7 +214,7 @@ float wave_distort11(bool use,vec2 st,float angle,float factor){
 }
 
 
-float wave_distort11(bool use,vec2 st,float angle,float factor,float power){
+float wave_distort11(bool use,vec2 st,float angle,float factor,float power,float peakFreq){
     // distort =========================================
     
     
@@ -240,7 +240,7 @@ float wave_distort11(bool use,vec2 st,float angle,float factor,float power){
     
     // float x = uv.x;
     float y = 0.0;
-    float peakFreq = 3.0; // =================== bigger is quicker
+    // float peakFreq = 3.0; // =================== bigger is quicker
     float a1 = -.2*sin(iTime*peakFreq);
     
     float f1 = 3.5 ;
@@ -267,7 +267,7 @@ float wave_distort11(bool use,vec2 st,float angle,float factor,float power){
 
 
 
-float wave_distort1(float use,vec2 st,float angle,float amp,float power){
+float wave_distort1(float use,vec2 st,float angle,float amp,float power,float peakFreq){
     // after trying for +y axis , angle center is 0.5 , range is about 3.5, means -3.0~4.0 is its range
     
     // normalize from 0.0 ~ 1.0
@@ -281,13 +281,13 @@ float wave_distort1(float use,vec2 st,float angle,float amp,float power){
     float y = 0.0;
     if(use > 0.0){
         bool bUseWaveDistort = true;
-        y = wave_distort11(bUseWaveDistort,st,angle,0.2,power);
-        float y1 = wave_distort11(bUseWaveDistort,st,angle,0.3,power);
+        y = wave_distort11(bUseWaveDistort,st,angle,0.2,power,peakFreq);
+        float y1 = wave_distort11(bUseWaveDistort,st,angle,0.3,power,peakFreq);
         y = mix(y,y1,0.9 );
-        float y2 = wave_distort11(bUseWaveDistort,st,angle,0.9,power);
+        float y2 = wave_distort11(bUseWaveDistort,st,angle,0.9,power,peakFreq);
         y = mix(y,y2,0.9);
         
-        float y3 = wave_distort11(bUseWaveDistort,st,angle,.0,power);
+        float y3 = wave_distort11(bUseWaveDistort,st,angle,.0,power,peakFreq);
         
         y = mix(y,y3,0.1);
         
@@ -339,23 +339,26 @@ void main()
     
     
     if(bWordTracking>0.0){
-        float amp = globalWaveAmp;
+        // press test 
+        for (int i = 0; i < kTrackingDataSize; ++i)
+        {
+
+            float amp = globalWaveAmp;
 
 
-        float angle = 0.5;// -1.2 is 0 2.3 is 1 , 0.5 is center 
+            float angle = 0.5;// -1.2 is 0 2.3 is 1 , 0.5 is center +++++++++++++++++++++++++
         
-        float power = .9;
-        y = smax(y,wave_distort1(bWordTracking,st,angle,amp,power),0.1);
+            float power = .9; // 0.1 ~ 5, 5 is very big power +++++++++++++++++++++++++
+
+            float peakFreq = 2.;//2 is normal , 4 is quick 6 is very quick ++++++++++++++++++++++++++
+            y = smax(y,wave_distort1(bWordTracking,st,angle,amp,power,peakFreq),0.1);
+
+        }
+
+
 
         
-        angle = 1.9;
-        power = .1;
-        
-        y = smax(y,wave_distort1(bWordTracking,st,angle,amp,power),0.1);
-        
-        angle = -.8;
-        power = 1.1;
-        y = smax(y,wave_distort1(bWordTracking,st,angle,amp,power),0.1);
+
 
 
     }else{
