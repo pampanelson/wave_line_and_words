@@ -291,12 +291,21 @@ void main()
 //        for (int i = 0; i < kTrackingDataSize; i++)
 //        {
 
-           float angle = 0.5;
-            float mark = texture2D(inputTexture,vec2(0.1,0.5)).r;
+           float angle;
 
-            if(mark > 0.3){
+           // data texture 0 ~ 640 has detecting data
+           // need map st1.x to it .
+            // float mark = texture2D(inputTexture,vec2(st1.x/6.0,0.5)).r;
+
+           // for strenched texture data
+
+           float mark;
+            mark = texture2D(inputTexture,vec2(st1.x/6.0,uv.y)).r;
+
+
+            if(mark < 0.2){
                 colAdd = 0.2;
-                angle += 0.3;
+                angle = st1.x;
                     
             }
         
@@ -304,7 +313,8 @@ void main()
            float amp = globalWaveAmp;// smaller means bigger wave peak to the lower wave bottom;
            // 0.05 ~ 0.6
 
-           y = smax(y,wave_distort1(bWordTracking,st,angle,amp),0.1);
+           // y = smax(y,wave_distort1(bWordTracking,st,angle,amp),0.8);
+           y = smax(y,wave_distort11(true,st,angle,amp),0.5);
 
 //        }
         
@@ -340,6 +350,11 @@ void main()
 
 
 
+    float mark;
+    mark = texture2D(inputTexture,vec2(gl_FragCoord.x/iResolution.x,gl_FragCoord.y/iResolution.y)).r;
+
+
+    col = vec3(mark);
 
 
     // debug distort wave =============
