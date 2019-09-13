@@ -34,12 +34,12 @@ uniform float globalWaveAmp;// smaller means bigger wave peak to the lower wave 
 
 uniform float wordColDivid;
 uniform float wordWordDivid;
-uniform float trackingData[32]; // 12 size()
+uniform float trackingData[18]; // 12 size()
 
 
 
-int kTrackingDataSize = 32;
-float kTrackingDataSizeF = 32.0;
+int kTrackingDataSize = 18;
+float kTrackingDataSizeF = 18.0;
 float PI = 3.1415926535;
 float aPI = acos(-1.);
 
@@ -340,15 +340,21 @@ void main()
     
     if(bWordTracking>0.0){
         // press test 
-        for (int i = 0; i < kTrackingDataSize; ++i)
+        for (float i = 0.0; i < kTrackingDataSizeF;i++)
         {
 
             float amp = globalWaveAmp;
 
 
-            float angle = 0.5;// -1.2 is 0 2.3 is 1 , 0.5 is center +++++++++++++++++++++++++
+            //float angle = 0.5;// -1.2 is 0 2.3 is 1 , 0.5 is center +++++++++++++++++++++++++
+
+            float angle = i*1./kTrackingDataSizeF;
+
+            angle = angle * 3.4 - 1.7 + 0.5; // process angle for distort functions
         
-            float power = .9; // 0.1 ~ 5, 5 is very big power +++++++++++++++++++++++++
+            // float power = .9; // 0.1 ~ 5, 5 is very big power +++++++++++++++++++++++++
+
+            float power = trackingData[int(i)];
 
             float peakFreq = 2.;//2 is normal , 4 is quick 6 is very quick ++++++++++++++++++++++++++
             y = smax(y,wave_distort1(bWordTracking,st,angle,amp,power,peakFreq),0.1);

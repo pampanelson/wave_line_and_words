@@ -115,9 +115,9 @@ protected:
 
     
     
-    int kTrackingDataSize = 32;
-    GLfloat trackingData[32]; // -1 for no tracking at all;
-    std::vector<float> trackingDataVec[32];
+    int kTrackingDataSize = 18;
+    GLfloat trackingData[18]; // -1 for no tracking at all;
+    std::vector<float> trackingDataVec[18];
     
     
     std::string wordColDivid = "0";
