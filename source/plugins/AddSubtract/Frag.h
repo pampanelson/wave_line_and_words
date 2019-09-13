@@ -214,34 +214,84 @@ float wave_distort11(bool use,vec2 st,float angle,float factor){
 }
 
 
+float wave_distort11(bool use,vec2 st,float angle,float factor,float power){
+    // distort =========================================
+    
+    
+    vec2 st2 = st;
+    //st.x = st.x/(PI*2.0) + .5; // before st.x is -π ~ π after is  normalized 0.0 ~ 1.0
+    
+    float x = st2.x;
+    x *= factor; // wave smooth factor
+    // x -= fract(iTime*0.1);
+    //x += 0.5;
+    //x = -x;
+    
+    // =+++++++++++++ IMPORTANT ++++++++++++++++++++++++++++
+    if(!use){
+        
+        x += 1.; // this value makes no distort ================ . TODO
+    }
+    else{
+        x += -.0; // 0.0 is up direct , -0.5 is right direct , 0.5 is left direct
+        x += 0.5 - angle;// angle is 0. ~ 1, 1 is right direct , 0 is left direct
+        
+    }
+    
+    // float x = uv.x;
+    float y = 0.0;
+    float a1 = -.2*sin(iTime*5.0);
+    
+    float f1 = 3.5 ;
+    float y1 = wave2(x,a1,f1);
+    float a2 = 0.0;//
+    a2 = 0.1;
+    float f2 = 9.0; // power ===============================
+    float y2 = wave2(x+0.1,a2,f2);
+    y = smax(y,y1,0.1);
+    y = smax(y,y2,0.2);
+    //y = smax(y,wave1(x*0.01),-0.9);
+    float peak3 = 0.1;//
+    float narrow3 = 5.0 + 2.;
+    float y3 = wave3(x+0.1*sin(iTime*5.),peak3,narrow3);
+    
+    y = smax(y,y3,0.1);
+    //y = smax(y,0.2,0.9);
+    
+    //y *= 1.2;// whole scale =======================
+    y *= power; // amp
+    return y;
+}
 
-float wave_distort1(float use,vec2 st,float angle,float amp){
+
+
+float wave_distort1(float use,vec2 st,float angle,float amp,float power){
     // after trying for +y axis , angle center is 0.5 , range is about 3.5, means -3.0~4.0 is its range
     
     // normalize from 0.0 ~ 1.0
     
     // important ========================================
-    angle *= 7.;// 0~7.;
-    angle -= 3.0;// -3 ~ 4.  original 0.5 now is 0.5 still
+    //angle *= 7.;// 0~7.;
+    //angle -= 3.0;// -3 ~ 4.  original 0.5 now is 0.5 still
 
     // input angle should be < -0.1 or > 1.1 for save no motion at all
     
     float y = 0.0;
     if(use > 0.0){
         bool bUseWaveDistort = true;
-        y = wave_distort11(bUseWaveDistort,st,angle,0.2+ rand(iTime*0.000001));
-        float y1 = wave_distort11(bUseWaveDistort,st,angle,0.3);
-        y = mix(y,y1,0.9 + rand(iTime*0.000001) );
-        float y2 = wave_distort11(bUseWaveDistort,st,angle,0.9 + rand(iTime*0.000001));
-        y = mix(y,y2,0.9+ rand(iTime*0.000001));
+        y = wave_distort11(bUseWaveDistort,st,angle,0.2,power);
+        float y1 = wave_distort11(bUseWaveDistort,st,angle,0.3,power);
+        y = mix(y,y1,0.9 );
+        float y2 = wave_distort11(bUseWaveDistort,st,angle,0.9,power);
+        y = mix(y,y2,0.9);
         
-        float y3 = wave_distort11(bUseWaveDistort,st,angle,1.9);
+        float y3 = wave_distort11(bUseWaveDistort,st,angle,1.9,power);
         
-        y = mix(y,y3,0.1+ rand(iTime*0.000001));
+        y = mix(y,y3,0.1);
         
         float waveBottom = amp;// smaller means bigger wave peak to the lower wave bottom;
         // 0.05 ~ 0.6
-        y = smax(y,waveBottom,0.9);
+        y = smax(y,waveBottom,0.5);
         
     }
     
@@ -278,107 +328,36 @@ void main()
     vec2 st = vec2(atan(uv.x,uv.y),length(uv));
     //st.x += PI;// 0 ~ 2PI on -y axis
     
+
+    // -----------------------------------------------------------------------------------
     float y = 0.0;
     
-    // y += wave_distort(bWordTracking,st,0.5,0.8);
     
     if(bWordTracking>0.0){
-        // for (int i = 0; i < kTrackingDataSize; i++)
-        // {
-        //     float angle = trackingData[i];
-        //     float amp = globalWaveAmp;// smaller means bigger wave peak to the lower wave bottom;
-        //     // 0.05 ~ 0.6
-            
-        //     y = smax(y,wave_distort1(bWordTracking,st,angle,amp),0.1);
-            
-        // }
-
-        // use manual sound input tracker
-        // float amp = globalWaveAmp;
-        // y = smax(y,wave_distort1(bWordTracking,st,trk1,amp),0.1);
-        // y = smax(y,wave_distort1(bWordTracking,st,trk2,amp),0.1);
-        // y = smax(y,wave_distort1(bWordTracking,st,trk3,amp),0.1);
-        
-        // float angleIndex = floor(st.x * 63.);
-        // int index = int(angleIndex);
-        // if(index < kTrackingDataSize ){
-        //     if(trackingData[index] > 0.0){
-        //         float angle = 1./kTrackingDataSizeF * angleIndex + rand(iTime) * 0.01;
-        //         float amp = globalWaveAmp;
-        //         // angle = 0.5 + sin(iTime);
-        //         y = smax(y,wave_distort1(bWordTracking,st,angle,amp),0.1);
-        //     }
-        // }
         float amp = globalWaveAmp;
 
-        for (int i = 0; i < kTrackingDataSize; i++)
-        {
-            /* code */
-            if(trackingData[i] > 0.0){
-                float angle = 1./kTrackingDataSizeF * float(i);
 
-                 y = smax(y,wave_distort1(bWordTracking,st,angle,amp),0.1);
-
-            }
-        }
+        float angle = 0.5;// -1.2 is 0 2.3 is 1 , 0.5 is center 
+        
+        float power = .3;
+        y = smax(y,wave_distort1(bWordTracking,st,angle,amp,power),0.1);
 
     }else{
         y = globalWaveAmp;
     }
 
-    
-    
-    
-
     vec3 col;
-    // vec3 word_wave(vec2 st,float rotateSpeed,float distort,float colNZumber,float offsetY,float lsratio,float wsratio){
+
+    // -----------------------------------------------------------------------------------
+
     
     col = word_wave(st,wordRotateSpeed,y,wordLineNum,wordOffset,wordLineSpacingRatio,wordWordSpacingRatio);
-    
-    
-    // debug distort wave =============
-    // bool bWaveDistortDebug = false;
-    // if(st.y < y && bWaveDistortDebug){
-    //     col = vec3(1.0);
-    // }
-    
-    // Output to screen
-    
-    //    col = vec3(sin(iTime));
-
-
-
-
-    // debug tracking data ---------------------------
-    
-    // uv.x *= 12.0;
-    
-    // int index = int(floor(uv.x));
-    // col = vec3(trackingData[index]);
     
 
 
     fragColor = vec4(col,1.0);
     
     
-    // for test default st and changed st convertion
-    //    uv2.y = 1. - uv2.y;
-    //    fragColor = vec4(uv2.x,uv2.y,0.0,.5);
-    
-    //    fragColor += vec4(texture2D(inputTexture,uv2).xyz,0.5);
-    
-    
-    
-    // debug pass float from text into shader
-//    if(gl_FragCoord.x < wordWordDivid && gl_FragCoord.y < wordColDivid){
-//        fragColor = vec4(1.0);
-//
-//    }
-//    
-    
-    
-    
-
     
     gl_FragColor = fragColor;
 }
