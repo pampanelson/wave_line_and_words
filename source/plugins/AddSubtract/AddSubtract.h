@@ -115,9 +115,9 @@ protected:
 
     
     
-    int kTrackingDataSize = 8;
-    GLfloat trackingData[8]; // -1 for no tracking at all;
-    std::vector<float> trackingDataVec[8];
+    int kTrackingDataSize = 32;
+    GLfloat trackingData[32]; // -1 for no tracking at all;
+    std::vector<float> trackingDataVec[32];
     
     
     std::string wordColDivid = "0";
@@ -170,13 +170,7 @@ protected:
     GLint m_SwitchTexLocation;
     GLint m_Float1Location;
     
-    GLint trk1Loc;
-    GLint trk2Loc;
-    GLint trk3Loc;
-    
-    float trk1;
-    float trk2;
-    float trk3;
+
 
     double ticks;
 

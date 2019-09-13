@@ -30,9 +30,6 @@
 #define FFPARAM_word_word_divid     (11)
 #define FFPARAM_text_data     (12)
 
-#define FFPARAM_trk1 (13)
-#define FFPARAM_trk2 (14)
-#define FFPARAM_trk3 (15)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Plugin information
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -113,9 +110,6 @@ AddSubtract::AddSubtract()
     
     SetParamInfo(FFPARAM_text_data, "osc text data0", FF_TYPE_TEXT, rawOscTextData.c_str());
     
-    SetParamInfo(FFPARAM_trk1,"tracker 1",FF_TYPE_STANDARD,trk1);
-    SetParamInfo(FFPARAM_trk2,"tracker 2",FF_TYPE_STANDARD,trk2);
-    SetParamInfo(FFPARAM_trk3,"tracker 3",FF_TYPE_STANDARD,trk3);
 
 
 }
@@ -165,10 +159,6 @@ FFResult AddSubtract::InitGL(const FFGLViewportStruct *vp)
 
     wordWordDividLoc = m_shader.FindUniform("wordWordDivid");
     wordColDividLoc = m_shader.FindUniform("wordColDivid");
-    
-    trk1Loc = m_shader.FindUniform("trk1");
-    trk2Loc = m_shader.FindUniform("trk2");
-    trk3Loc = m_shader.FindUniform("trk3");
 
 	//the 0 means that the 'inputTexture' in
 	//the shader will use the texture bound to GL texture unit 0
@@ -270,9 +260,6 @@ FFResult AddSubtract::ProcessOpenGL(ProcessOpenGLStruct *pGL)
     
 
     
-    glUniform1f(trk1Loc, trk1);
-    glUniform1f(trk2Loc, trk2);
-    glUniform1f(trk3Loc, trk3);
 
     if(bWordRotate){
         glUniform1f(bWordRotateLoc,1.0);
@@ -383,19 +370,7 @@ float AddSubtract::GetFloatParameter(unsigned int dwIndex)
             retValue = waveMax;
             return retValue;
             
-        case FFPARAM_trk1:
-            retValue = trk1;
-            return retValue;
-            
-        case FFPARAM_trk2:
-            retValue = trk2;
-            return retValue;
-            
-        case FFPARAM_trk3:
-            retValue = trk3;
-            return retValue;
-            
-            
+
         default:
             return retValue;
     }
@@ -454,18 +429,7 @@ FFResult AddSubtract::SetFloatParameter(unsigned int dwIndex, float value)
             waveMax = value;
             break;
             
-        case FFPARAM_trk1:
-            trk1 = value;
-            break;
-            
-        case FFPARAM_trk2:
-            trk2 = value;
-            break;
-            
-        case FFPARAM_trk3:
-            trk3 = value;
-            break;
-            
+
             
 
 

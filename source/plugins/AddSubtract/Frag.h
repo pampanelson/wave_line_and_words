@@ -34,15 +34,12 @@ uniform float globalWaveAmp;// smaller means bigger wave peak to the lower wave 
 
 uniform float wordColDivid;
 uniform float wordWordDivid;
-uniform float trackingData[8]; // 12 size()
+uniform float trackingData[32]; // 12 size()
 
 
-uniform float trk1;
-uniform float trk2;
-uniform float trk3;
 
-int kTrackingDataSize = 8;
-float kTrackingDataSizeF = 8.0;
+int kTrackingDataSize = 32;
+float kTrackingDataSizeF = 32.0;
 float PI = 3.1415926535;
 float aPI = acos(-1.);
 
@@ -157,7 +154,7 @@ vec3 word_wave(vec2 st,float rotateSpeed,float distort,float colNumber,float off
         localPolar.y = 1. - localPolar.y;
         // maybe need flip x axis also 
 //        localPolar.x = 1. - localPolar.x;
-        col = texture2D(inputTexture,localPolar).bbb;
+        col = texture2D(inputTexture,localPolar).rgb;
         
     }
     
@@ -233,7 +230,7 @@ float wave_distort1(float use,vec2 st,float angle,float amp){
     if(use > 0.0){
         bool bUseWaveDistort = true;
         y = wave_distort11(bUseWaveDistort,st,angle,0.2+ rand(iTime*0.000001));
-        float y1 = wave_distort11(bUseWaveDistort,st,angle,0.3 + rand(iTime*0.000001));
+        float y1 = wave_distort11(bUseWaveDistort,st,angle,0.3);
         y = mix(y,y1,0.9 + rand(iTime*0.000001) );
         float y2 = wave_distort11(bUseWaveDistort,st,angle,0.9 + rand(iTime*0.000001));
         y = mix(y,y2,0.9+ rand(iTime*0.000001));
@@ -297,10 +294,33 @@ void main()
         // }
 
         // use manual sound input tracker
+        // float amp = globalWaveAmp;
+        // y = smax(y,wave_distort1(bWordTracking,st,trk1,amp),0.1);
+        // y = smax(y,wave_distort1(bWordTracking,st,trk2,amp),0.1);
+        // y = smax(y,wave_distort1(bWordTracking,st,trk3,amp),0.1);
+        
+        // float angleIndex = floor(st.x * 63.);
+        // int index = int(angleIndex);
+        // if(index < kTrackingDataSize ){
+        //     if(trackingData[index] > 0.0){
+        //         float angle = 1./kTrackingDataSizeF * angleIndex + rand(iTime) * 0.01;
+        //         float amp = globalWaveAmp;
+        //         // angle = 0.5 + sin(iTime);
+        //         y = smax(y,wave_distort1(bWordTracking,st,angle,amp),0.1);
+        //     }
+        // }
         float amp = globalWaveAmp;
-        y = smax(y,wave_distort1(bWordTracking,st,trk1,amp),0.1);
-        y = smax(y,wave_distort1(bWordTracking,st,trk2,amp),0.1);
-        y = smax(y,wave_distort1(bWordTracking,st,trk3,amp),0.1);
+
+        for (int i = 0; i < kTrackingDataSize; i++)
+        {
+            /* code */
+            if(trackingData[i] > 0.0){
+                float angle = 1./kTrackingDataSizeF * float(i);
+
+                 y = smax(y,wave_distort1(bWordTracking,st,angle,amp),0.1);
+
+            }
+        }
 
     }else{
         y = globalWaveAmp;
