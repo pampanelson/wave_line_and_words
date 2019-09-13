@@ -38,6 +38,8 @@ uniform float trackingData[8]; // 12 size()
 uniform float frame;
 uniform float waveFFTFactor;
                                                         
+float PI = 3.1415926535;
+float aPI = acos(-1.);
 
 
 
@@ -61,14 +63,24 @@ void main()
     uv *= 2.0; // -1. ~ 1.
     uv.y += iResolution.y/iResolution.x;// origin point on (0.5 * x , 0.0)
     
-    
     // uv.y -= wordOffset;// whole screen offset ======================
     // uv *= 0.5;// 0 ~ 1
     
-    vec2 st = vec2(atan(uv.x,uv.y),length(uv));
-    //st.x += PI;// 0 ~ 2PI on -y axis
 
+    vec2 uv3 = uv;
+    
+    vec2 st = vec2(atan(uv3.x,uv3.y),length(uv3));
+    st.x += PI;// 0 ~ 2PI on -y axis
+    st.x /= PI;// 0~2 from -y axis
+    st.x -= 0.5; // 0~1 from -x axis
 
+    // coordination for read texture data;
+    float x = -length(uv)*cos(st.x*PI); // -1 ~ 1
+    float sty = fragCoord.y / iResolution.y;// 0 ~ 1
+    float stx = fragCoord.x / iResolution.x;// 0~1
+    
+    
+    vec3 col;
 
     float mark;
     mark = texture2D(inputTexture,vec2(gl_FragCoord.x/iResolution.x,gl_FragCoord.y/iResolution.y)).r;
@@ -76,47 +88,14 @@ void main()
 
     col = vec3(mark);
 
-
-    // debug distort wave =============
-    // bool bWaveDistortDebug = false;
-    // if(st.y < y && bWaveDistortDebug){
-    //     col = vec3(1.0);
-    // }
-    
-    // Output to screen
-    
-    //    col = vec3(sin(iTime));
+    col = vec3(stx,sty,0.0); // check texture 
 
 
 
 
-    // debug tracking data ---------------------------
-    
-    // uv.x *= 12.0;
-    
-    // int index = int(floor(uv.x));
-    // col = vec3(trackingData[index]);
-    
 
 
     fragColor = vec4(col,1.0);
-    
-    
-    // for test default st and changed st convertion
-    //    uv2.y = 1. - uv2.y;
-    //    fragColor = vec4(uv2.x,uv2.y,0.0,.5);
-    
-    //    fragColor += vec4(texture2D(inputTexture,uv2).xyz,0.5);
-    
-    
-    
-    // debug pass float from text into shader
-//    if(gl_FragCoord.x < wordWordDivid && gl_FragCoord.y < wordColDivid){
-//        fragColor = vec4(1.0);
-//
-//    }
-//    
-    
     
     
 
