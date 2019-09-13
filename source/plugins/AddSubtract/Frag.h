@@ -240,28 +240,30 @@ float wave_distort11(bool use,vec2 st,float angle,float factor,float power){
     
     // float x = uv.x;
     float y = 0.0;
-    float a1 = -.2*sin(iTime*5.0);
+    float peakFreq = 3.0; // =================== bigger is quicker
+    float a1 = -.2*sin(iTime*peakFreq);
     
     float f1 = 3.5 ;
     float y1 = wave2(x,a1,f1);
     float a2 = 0.0;//
-    a2 = 0.1;
+    a2 = 0.02;
     float f2 = 9.0; // power ===============================
     float y2 = wave2(x+0.1,a2,f2);
     y = smax(y,y1,0.1);
-    y = smax(y,y2,0.2);
+    y = smax(y,y2,0.1);
     //y = smax(y,wave1(x*0.01),-0.9);
     float peak3 = 0.1;//
-    float narrow3 = 5.0 + 2.;
-    float y3 = wave3(x+0.1*sin(iTime*5.),peak3,narrow3);
+    float narrow3 = 5.;
+    float y3 = wave3(x+0.1*cos(iTime*2.),peak3,narrow3);
     
     y = smax(y,y3,0.1);
     //y = smax(y,0.2,0.9);
     
     //y *= 1.2;// whole scale =======================
-    y *= power; // amp
+    y *= power; // power
     return y;
 }
+
 
 
 
@@ -285,7 +287,7 @@ float wave_distort1(float use,vec2 st,float angle,float amp,float power){
         float y2 = wave_distort11(bUseWaveDistort,st,angle,0.9,power);
         y = mix(y,y2,0.9);
         
-        float y3 = wave_distort11(bUseWaveDistort,st,angle,1.9,power);
+        float y3 = wave_distort11(bUseWaveDistort,st,angle,.0,power);
         
         y = mix(y,y3,0.1);
         
@@ -342,8 +344,19 @@ void main()
 
         float angle = 0.5;// -1.2 is 0 2.3 is 1 , 0.5 is center 
         
-        float power = .3;
+        float power = .9;
         y = smax(y,wave_distort1(bWordTracking,st,angle,amp,power),0.1);
+
+        
+        angle = 1.9;
+        power = .1;
+        
+        y = smax(y,wave_distort1(bWordTracking,st,angle,amp,power),0.1);
+        
+        angle = -.8;
+        power = 1.1;
+        y = smax(y,wave_distort1(bWordTracking,st,angle,amp,power),0.1);
+
 
     }else{
         y = globalWaveAmp;
